@@ -13,7 +13,7 @@
   },
   "build": {
     "appId": "com.chinastar.domain.club",
-    "productName": "中国星域俱乐部接档器",
+    "productName": "中国星域接档器",
     "files": [
       "main.js",
       "preload.js",
@@ -36,5 +36,11 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     }
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "axios": "^1.8.1",
+    "electron-store": "^10.0.1",
+    "winreg": "^1.2.5"
   }
 }
