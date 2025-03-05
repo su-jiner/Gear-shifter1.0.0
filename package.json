@@ -4,19 +4,37 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "build": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "中国星域俱乐部接档器，欢迎各位使用！！！",
   "devDependencies": {
-    "electron": "^34.2.0"
+    "electron": "^34.2.0",
+    "electron-builder": "^24.13.3"
   },
-  "dependencies": {
-    "adm-zip": "^0.5.16",
-    "axios": "^1.8.1",
-    "electron-store": "^10.0.1",
-    "winreg": "^1.2.5"
-  },
-  "displayName": "中国星域俱乐部接档器"
+  "build": {
+    "appId": "com.chinastar.domain.club",
+    "productName": "中国星域俱乐部接档器",
+    "files": [
+      "main.js",
+      "preload.js",
+      "public/**/*",
+      "icon.ico",
+      "settings.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "mac": {
+      "category": "public.app-category.utilities",
+      "icon": "icon.icns"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
 }
