@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <!-- 引入 Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- 引入 Font Awesome 图标库 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="../css/style1.css" rel="stylesheet">
+
+    <!-- 引入 crypto-js 库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        /* 自定义加载动画样式 */
+        .loader {
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #close-btn {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #close-btn:hover {
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        /* 添加过渡效果 */
+        .form-group {
+            transition: opacity 0.3s ease, max-height 0.3s ease;
+            max-height: 500px;
+            overflow: hidden;
+        }
+
+        .form-group.hidden {
+            opacity: 0;
+            max-height: 0;
+            pointer-events: none;
+        }
+
+        .border-red-500 { border-color: #ef4444; }
+        .border-green-500 { border-color: #22c55e; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen relative">
+    <button id="close-btn" class="container absolute top-4 right-4 text-xl">&times;</button>
+
+    <div class="container card bg-white p-8 rounded-lg shadow-md w-full max-w-md space-y-4">
+        <h1 class="text-2xl font-bold text-center mb-4">登录</h1>
+
+        <!-- 登录表单 -->
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">登录方式</label>
+                <div class="mt-2 space-y-2">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="login-method" value="QQID" checked class="form-radio">
+                        <span class="ml-2">QQ号</span>
+                    </label>                    
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="login-method" value="username" class="form-radio">
+                        <span class="ml-2">编号</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- QQID 输入框 -->
+            <div id="QQID-group" class="form-group">
+                <label for="QQID" class="block text-sm font-medium text-gray-700">QQ号</label>
+                <input type="text" id="QQID" name="QQID" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <div class="error-msg mt-1 text-red-500 text-sm hidden">请输入有效的QQ号（5到11位数字）</div>
+            </div>
+
+            <!-- 用户名输入框 -->
+            <div id="username-group" class="form-group hidden">
+                <label for="username" class="block text-sm font-medium text-gray-700">编号</label>
+                <input type="text" id="username" name="username" disabled class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <div class="error-msg mt-1 text-red-500 text-sm hidden">请输入有效的编号（仅限数字）</div>
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">密码</label>
+                <input type="password" id="password" name="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <div class="error-msg mt-1 text-red-500 text-sm hidden">密码至少包含一个字母和一个数字，且长度不少于8个字符，支持 - 和 _ 符号</div>
+            </div>
+
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline inline-flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                </svg>
+                登录
+            </button>
+        </form>
+
+        <!-- 找回密码跳转链接 -->
+        <div class="text-center mt-4">
+            <p class="text-sm text-gray-600">忘记了密码？ <a href="../index.html" class="text-indigo-600 hover:text-indigo-700">找回密码</a></p>
+        </div>
+    </div>
+
+    <!-- 加载动画 -->
+    <div id="loading-overlay" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50">
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16"></div>
+        </div>
+    </div>
+
+    <!-- 自定义弹窗 -->
+    <div id="error-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-red-600">错误</h3>
+                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-700">
+                    &times;
+                </button>
+            </div>
+            <p id="error-message" class="text-gray-700"></p>
+        </div>
+    </div>
+
+    <!-- 引入 jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        async function getSettings() {
+            try {
+                const settings = await window.electronAPI.loadSettings();
+                return settings;
+            } catch (error) {
+                console.error('获取设置时出错:', error);
+                return {};
+            }
+        }
+
+        $(document).ready(async function () {
+            const settings = await getSettings();
+            const SERVER_IP = settings.serverIp || "127.0.0.1";
+            const WORKING_PORT = settings.workingPort || "3000";
+
+            // 监听输入框的 blur 事件
+            $('#QQID').on('blur', function () {
+                validateField($(this), validateQQID);
+            });
+
+            $('#username').on('blur', function () {
+                validateField($(this), validateUsername);
+            });
+    
+            $('#password').on('blur', function () {
+                validateField($(this), validatePassword);
+            });
+    
+            // 添加关闭按钮的点击事件
+            $('#close-btn').on('click', function() {
+                if (window.electronAPI && typeof window.electronAPI.closeApp === 'function') {
+                    window.electronAPI.closeApp();
+                } else {
+                    console.error('electronAPI 或 closeApp 方法未定义');
+                }
+            });
+    
+            // 切换登录方式时显示相应的输入框
+            $('input[name="login-method"]').on('change', function() {
+                const method = $(this).val();
+                
+                // 隐藏所有输入框并禁用它们
+                $('#QQID-group, #username-group').addClass('hidden');
+                $('#QQID, #username').prop('disabled', true).removeAttr('required');
+                
+                // 显示当前登录方式对应的输入框并启用它
+                $(`#${method}-group`).removeClass('hidden');
+                $(`#${method}`).prop('disabled', false).attr('required', true);
+                
+                // 清空非当前输入框的值和错误提示
+                if (method === 'username') {
+                    $('#QQID').val('').trigger('blur');
+                } else {
+                    $('#username').val('').trigger('blur');
+                }
+            });
+    
+            // 提交表单时验证所有字段
+            $('#login-form').on('submit', function (e) {
+                e.preventDefault();
+                
+                // 禁用按钮防止重复提交
+                const $submitBtn = $(this).find('button[type="submit"]');
+                $submitBtn.prop('disabled', true);
+    
+                // 显示加载动画
+                $('#loading-overlay').removeClass('hidden');
+                
+                // 强制至少显示3秒动画
+                const minLoadingTime = new Promise(resolve => setTimeout(resolve, 3000));
+                
+                const loginMethod = $('input[name="login-method"]:checked').val();
+                const username = $('#username').val().trim();
+                const QQID = $('#QQID').val().trim();
+                const password = $('#password').val().trim();
+    
+                let isValid = true;
+    
+                // 验证账号格式（根据用户选择的登录方式）
+                if (loginMethod === 'username') {
+                    if (!validateUsername(username)) {
+                        showValidationError($('#username'));
+                        isValid = false;
+                    } else {
+                        hideValidationError($('#username'));
+                    }
+                } else if (loginMethod === 'QQID') {
+                    if (!validateQQID(QQID)) {
+                        showValidationError($('#QQID'));
+                        isValid = false;
+                    } else {
+                        hideValidationError($('#QQID'));
+                    }
+                }
+    
+                // 验证密码格式
+                if (!validatePassword(password)) {
+                    showValidationError($('#password'));
+                    isValid = false;
+                } else {
+                    hideValidationError($('#password'));
+                }
+    
+                // 如果所有字段都有效，则发送请求到服务器
+                if (isValid) {
+                    // 对密码进行SHA-256加密
+                    const hashedPassword = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
+    
+                    // 根据用户选择的登录方式发送不同的参数
+                    const loginData = loginMethod === 'username' 
+                        ? { username: parseInt(username), password: hashedPassword }
+                        : { QQID: QQID, password: hashedPassword };
+    
+                    Promise.all([minLoadingTime, $.ajax({
+                        url: `http://${SERVER_IP}:${WORKING_PORT}/login`,
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(loginData)
+                    })])
+                    .then(([_, response]) => {
+                        handleResponse(response);
+                    })
+                    .catch(error => {
+                        handleError(error);
+                    })
+                    .finally(() => {
+                        $('#loading-overlay').addClass('hidden');
+                        $submitBtn.prop('disabled', false);
+                    });
+                } else {
+                    $('#loading-overlay').addClass('hidden');
+                    $submitBtn.prop('disabled', false);
+                }
+            });
+    
+            // 显示自定义错误弹窗
+            function showErrorModal(message) {
+                $('#error-message').text(message); // 设置错误信息
+                $('#error-modal').removeClass('hidden'); // 显示弹窗
+            }
+    
+            // 隐藏自定义错误弹窗
+            function hideErrorModal() {
+                $('#error-modal').addClass('hidden'); // 隐藏弹窗
+            }
+    
+            // 关闭按钮点击事件
+            $('#close-modal-btn').on('click', function() {
+                hideErrorModal();
+            });
+    
+            // 点击弹窗外部关闭弹窗
+            $(document).on('click', function(event) {
+                if ($(event.target).is('#error-modal')) {
+                    hideErrorModal();
+                }
+            });
+    
+            // 处理响应
+            function handleResponse(response) {
+                if (response.status === 'success') {
+                    // 保存JWT、操作者ID和头像链接等到localStorage
+                    localStorage.setItem('jwtToken', response.token);
+                    localStorage.setItem('operatorId', response.user.id); // 使用后端返回的user.id作为操作者ID
+                    localStorage.setItem('avatar', response.user.avatar); // 保存头像链接
+                    localStorage.setItem('QQID', response.user.QQID); // 保存QQID
+                    localStorage.setItem('userid', response.user.userid); // 保存userid
+    
+                    // 保存登录状态和用户信息到sessionStorage
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('user', JSON.stringify(response.user));
+    
+                    // 更新页面中的头像
+                    updateAvatar(response.user.avatar);
+    
+                    // 跳转到主页
+                    window.location.href = '../index.html';
+                } else {
+                    // 使用自定义弹窗显示错误信息
+                    showErrorModal(response.msg || '登录失败，请重试');
+                }
+            }
+    
+            // 处理错误
+            function handleError(xhr) {
+                const errorMessage = xhr.responseJSON ? xhr.responseJSON.msg : "未知错误，请重试";
+                showErrorModal(errorMessage); // 使用自定义弹窗显示错误
+            }
+    
+            // 显示验证错误
+            function showValidationError($input) {
+                const $errorDiv = $input.next('.error-msg');
+                $errorDiv.removeClass('hidden');
+                $input.addClass('border-red-500');
+            }
+    
+            // 隐藏验证错误
+            function hideValidationError($input) {
+                const $errorDiv = $input.next('.error-msg');
+                $errorDiv.addClass('hidden');
+                $input.removeClass('border-red-500');
+                $input.addClass('border-green-500');
+            }
+    
+            // 验证字段通用函数
+            function validateField($input, validationFunction) {
+                const value = $input.val().trim();
+                const isValid = validationFunction(value);
+                
+                $input.toggleClass('border-red-500', !isValid)
+                      .toggleClass('border-green-500', isValid);
+                
+                $input.next('.error-msg').toggleClass('hidden', isValid);
+                
+                return isValid;
+            }
+    
+            // 验证账号格式（现在仅允许数字）
+            function validateUsername(username) {
+                const usernamePattern = /^\d{1,10}$/;
+                return usernamePattern.test(username);
+            }
+    
+            // 验证QQID格式
+            function validateQQID(QQID) {
+                const QQIDPattern = /^\d{5,11}$/;
+                return QQIDPattern.test(QQID);
+            }
+    
+            // 验证密码格式
+            function validatePassword(password) {
+                const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d-_]{8,}$/;
+                return passwordPattern.test(password);
+            }
+    
+            // 更新头像
+            function updateAvatar(avatarUrl) {
+                const avatarImg = document.querySelector('.img-avatar');
+                if (avatarImg) {
+                    avatarImg.src = avatarUrl;
+                }
+            }
+        });
+    
+        // 页面加载时更新头像
+        document.addEventListener('DOMContentLoaded', function () {
+            // 检查是否已登录并获取头像链接
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+            if (isLoggedIn) {
+                const user = JSON.parse(sessionStorage.getItem('user'));
+                if (user && user.avatar) {
+                    updateAvatar(user.avatar);
+                }
+            } else {
+                const avatarFromLocalStorage = localStorage.getItem('avatar');
+                if (avatarFromLocalStorage) {
+                    updateAvatar(avatarFromLocalStorage);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

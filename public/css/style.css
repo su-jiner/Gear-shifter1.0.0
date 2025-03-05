@@ -1,0 +1,93 @@
+body {
+    background-image: url('http://www.98qy.com/sjbz/api.php');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    -webkit-app-region: no-drag;
+}
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.8)!important;
+    /* 自适应页面的最宽宽度 */
+    width: 100%;
+    max-width: 100%;
+    /* 增加卡片高度 */
+    min-height: none; /* 根据需要调整高度 */
+}
+
+/* 确保按钮组内的按钮具有相同的宽度并稍微增大宽度 */
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px; /* 增加按钮之间的间距 */
+}
+
+.button-container button {
+    /* 设置固定宽度并稍微增大 */
+    width: calc((100% - 16px) / 2); /* 减去间隙后均分剩余空间 */
+    padding: 10px; /* 调整内边距以增大按钮大小 */
+}
+
+/* 新增美化样式 */
+.version-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px 8px 0 0;
+}
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+ }
+
+ .modal-image {
+    display: block;
+    max-width: 90%;
+    max-height: 90%;
+    margin: auto;
+    margin-top: 5%;
+ }
+
+ #user-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .activity-item {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 16px;
+    width: 100%;
+    max-width: 100%;
+    min-height: none;
+  }
+  
+  .activity-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+.move {
+  -webkit-app-region: drag;
+}
+
+.no-wrap {
+  white-space: nowrap;
+}
+
+.custom-scroll {
+  max-height: 100vh; /* 设置最大高度 */
+  overflow-y: scroll; /* 启用垂直滚动 */
+}
+
+.custom-scroll::-webkit-scrollbar {
+  display: none; /* 隐藏滚动条 */
+}

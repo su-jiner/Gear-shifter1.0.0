@@ -1,0 +1,27 @@
+body {
+    background-color: #f8f9fa;
+    background-image: url('http://www.98qy.com/sjbz/api.php');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    -webkit-app-region: drag;
+}
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* 添加以下规则以确保其他容器仍然可点击 */
+.container, .any-other-interactable-elements {
+    -webkit-app-region: no-drag;
+}
+
+.custom-scroll {
+    max-height: 100vh; /* 设置最大高度 */
+    overflow-y: scroll; /* 启用垂直滚动 */
+ }
+  
+.custom-scroll::-webkit-scrollbar {
+    display: none; /* 隐藏滚动条 */
+ }

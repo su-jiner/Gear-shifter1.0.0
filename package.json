@@ -1,0 +1,22 @@
+{
+  "name": "china-star-domain-club-loader",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "中国星域俱乐部接档器，欢迎各位使用！！！",
+  "devDependencies": {
+    "electron": "^34.2.0"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "axios": "^1.8.1",
+    "electron-store": "^10.0.1",
+    "winreg": "^1.2.5"
+  },
+  "displayName": "中国星域俱乐部接档器"
+}

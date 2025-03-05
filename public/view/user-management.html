@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>用户管理 - 中国星域</title>
+<link rel="icon" href="favicon.ico" type="image/ico">
+<meta name="keywords" content="中国星域,星域,星域俱乐部,接档器">
+<meta name="description" content="中国星域接档器是一个快捷方便的欧卡2接档工具。">
+<meta name="author" content="yinqi">
+<link href="../css/bootstrap.min.css" rel="stylesheet">
+<link href="../css/materialdesignicons.min.css" rel="stylesheet">
+<link href="../css/style.min.css" rel="stylesheet">
+<!-- 新增样式库 -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<!-- 引入 Font Awesome 图标库 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<link href="../css/style.css" rel="stylesheet">
+<script src="../scriptjs/logout-setting.js"></script>
+
+<script>
+  function showModal(image) {
+      var modal = document.getElementById("modal");
+      var modalImage = document.getElementById("modal-image");
+      modal.style.display = "block";
+      modalImage.src = image.src;
+  }
+                 
+  function hideModal() {
+      var modal = document.getElementById("modal");
+      modal.style.display = "none";
+  }
+  </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      // 检查是否已登录并获取头像链接
+      const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+      let avatarUrl;
+
+      if (isLoggedIn) {
+          const user = JSON.parse(sessionStorage.getItem('user'));
+          if (user && user.avatar) {
+              avatarUrl = user.avatar;
+          }
+      } else {
+          avatarUrl = localStorage.getItem('avatar');
+      }
+
+      // 如果有头像链接，则更新页面中的所有 img-avatar 元素
+      if (avatarUrl) {
+          const avatarImgs = document.querySelectorAll('.avatar');
+          avatarImgs.forEach(function (img) {
+              img.src = avatarUrl;
+          });
+      }
+  });
+
+  // 更新头像函数
+  function updateAvatar(avatarUrl) {
+      const avatarImgs = document.querySelectorAll('.avatar');
+      avatarImgs.forEach(function (img) {
+          img.src = avatarUrl;
+      });
+  }
+</script>
+
+</head>
+  
+<body>
+<div class="lyear-layout-web">
+  <div class="lyear-layout-container">
+    <!--左侧导航-->
+    <aside class="lyear-layout-sidebar">
+      
+      <!-- logo -->
+      <div id="logo" class="move sidebar-header">
+        <a href="../index.html"><img src="../images/logo.png" class="img-responsive" title="星域" alt="星域" /></a>
+      </div>
+      <div class="lyear-layout-sidebar-scroll"> 
+        
+        <nav class="sidebar-main">
+          <ul class="nav nav-drawer">
+            <li class="nav-item active"> <a href="../index.html"><i class="mdi mdi-home"></i> 首页</a> </li>
+            <li class="nav-item active"> <a href="../error.html"><i class="mdi mdi-map-marker-radius"></i> 车队地图</a> </li>
+            <li class="nav-item active"> <a href="../error.html"><i class="mdi mdi-account-search"></i> 在线查询</a> </li>
+            <li class="nav-item nav-item-has-subnav">
+              <a href="javascript:void(0)"><i class="mdi mdi-menu"></i> 管理菜单</a>
+              <ul class="nav nav-subnav">
+                <li> <a href="../view/user-management.html"><i class="mdi mdi-account-multiple"></i> 用户管理 </a></li>
+                <li> <a href="../view/event-management.html"><i class="mdi mdi-server-network"></i> 活动管理 </a></li>
+                <li> <a href="../error.html"><i class="mdi mdi-account"></i> 积分管理 </a></li>
+              </ul>
+            </li>
+            <li class="nav-item active"> <a href="../error.html"><i class="mdi mdi-lock-outline"></i> 积分商城</a> </li>
+            <li class="nav-item active"> <a href="../setting/profile.html"><i class="mdi mdi-account-settings"></i> 设置</a> </li>
+          </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+          <p class="copyright">Copyright &copy; 2025. <a target="_blank" href="http://cnxiaoyu.cn">潇宇科技 - 潇潇</a> All rights reserved.</p>
+        </div>
+      </div>
+      
+    </aside>
+    <!--End 左侧导航-->
+    
+    <!--头部信息-->
+    <header class="lyear-layout-header">
+      
+      <nav class="navbar navbar-default">
+        <div class="topbar">
+          
+          <div class="topbar-left">
+            <div class="lyear-aside-toggler">
+              <span class="lyear-toggler-bar"></span>
+              <span class="lyear-toggler-bar"></span>
+              <span class="lyear-toggler-bar"></span>
+            </div>
+            <span class="navbar-page-title"> 用户管理 </span>
+          </div>
+          
+          <ul class="topbar-right">
+            <li class="dropdown dropdown-profile">
+              <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">
+                <img class="avatar img-avatar img-avatar-48 m-r-10" src="../images/users/avatar.jpg" alt="潇潇" onclick="showModal(this)" />
+                <span id="username-display"> <span class="caret"></span></span>
+              </a>
+
+              <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    // 从localStorage中获取QQID
+                    const QQID = localStorage.getItem('QQID');  // 获取保存在localStorage中的QQID
+        
+                    if (!QQID) {
+                        console.error('未找到QQID，请确保已经登录并保存了QQID');
+                        return;
+                    }
+        
+                    // 发送请求到API
+                    fetch(`https://api.mmp.cc/api/qqname?qq=${encodeURIComponent(QQID)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.code === 200 && data.data && data.data.name) {
+                                // 更新页面上的用户名
+                                const usernameDisplay = document.getElementById('username-display');
+                                if (usernameDisplay) {
+                                    // 清除原有内容
+                                    usernameDisplay.innerHTML = '';
+        
+                                    // 创建新的文本节点并添加到span中
+                                    const textNode = document.createTextNode(`${data.data.name} `);
+                                    usernameDisplay.appendChild(textNode);
+        
+                                    // 添加原有的caret span
+                                    const caretSpan = document.createElement('span');
+                                    caretSpan.className = 'caret';
+                                    usernameDisplay.appendChild(caretSpan);
+                                }
+                            } else {
+                                console.error('无法获取用户名或API返回格式不正确');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('请求失败:', error);
+                        });
+                });
+              </script>
+
+            </a>
+              <ul class="dropdown-menu dropdown-menu-right">
+                <li> <a href="../public/error.html"><i class="mdi mdi-account"></i> 个人信息</a> </li>
+                <li> <a href="../public/error.html"><i class="mdi mdi-lock-outline"></i> 修改密码</a> </li>
+                <li> <a href="javascript:void(0)"><i class="mdi mdi-delete"></i> 清空缓存</a></li>
+                <li class="divider"></li>
+                <li id="logout-link">
+                  <a href="#"><i class="mdi mdi-logout-variant"></i> 退出登录</a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="handleCloseApp()">
+                      <i class="mdi mdi-close"></i> 关闭窗口
+                  </a>
+                </li>
+              
+                  <script>
+                      function handleCloseApp() {
+                          // 清除 localStorage 中的所有数据
+                          localStorage.clear();
+                        
+                          // 调用 Electron API 关闭应用程序
+                          window.electronAPI.closeApp();
+                      }
+                  </script>
+              </ul>
+            </li>
+            <!--切换主题配色-->
+		    <li class="dropdown dropdown-skin">
+			  <span data-toggle="dropdown" class="icon-palette"><i class="mdi mdi-palette"></i></span>
+			  <ul class="dropdown-menu dropdown-menu-right" data-stopPropagation="true">
+                <li class="drop-title"><p>主题 ☞ “没啥用的装饰”</p></li>
+                <li class="drop-skin-li clearfix">
+                  <span class="inverse">
+                    <input type="radio" name="site_theme" value="default" id="site_theme_1" checked>
+                    <label for="site_theme_1"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="site_theme" value="dark" id="site_theme_2">
+                    <label for="site_theme_2"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="site_theme" value="translucent" id="site_theme_3">
+                    <label for="site_theme_3"></label>
+                  </span>
+                </li>
+			    <li class="drop-title"><p>LOGO</p></li>
+				<li class="drop-skin-li clearfix">
+                  <span class="inverse">
+                    <input type="radio" name="logo_bg" value="default" id="logo_bg_1" checked>
+                    <label for="logo_bg_1"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="logo_bg" value="color_2" id="logo_bg_2">
+                    <label for="logo_bg_2"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="logo_bg" value="color_3" id="logo_bg_3">
+                    <label for="logo_bg_3"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="logo_bg" value="color_4" id="logo_bg_4">
+                    <label for="logo_bg_4"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="logo_bg" value="color_5" id="logo_bg_5">
+                    <label for="logo_bg_5"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="logo_bg" value="color_6" id="logo_bg_6">
+                    <label for="logo_bg_6"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="logo_bg" value="color_7" id="logo_bg_7">
+                    <label for="logo_bg_7"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="logo_bg" value="color_8" id="logo_bg_8">
+                    <label for="logo_bg_8"></label>
+                  </span>
+				</li>
+				<li class="drop-title"><p>头部</p></li>
+				<li class="drop-skin-li clearfix">
+                  <span class="inverse">
+                    <input type="radio" name="header_bg" value="default" id="header_bg_1" checked>
+                    <label for="header_bg_1"></label>                      
+                  </span>                                                    
+                  <span>                                                     
+                    <input type="radio" name="header_bg" value="color_2" id="header_bg_2">
+                    <label for="header_bg_2"></label>                      
+                  </span>                                                    
+                  <span>                                                     
+                    <input type="radio" name="header_bg" value="color_3" id="header_bg_3">
+                    <label for="header_bg_3"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="header_bg" value="color_4" id="header_bg_4">
+                    <label for="header_bg_4"></label>                      
+                  </span>                                                    
+                  <span>                                                     
+                    <input type="radio" name="header_bg" value="color_5" id="header_bg_5">
+                    <label for="header_bg_5"></label>                      
+                  </span>                                                    
+                  <span>                                                     
+                    <input type="radio" name="header_bg" value="color_6" id="header_bg_6">
+                    <label for="header_bg_6"></label>                      
+                  </span>                                                    
+                  <span>                                                     
+                    <input type="radio" name="header_bg" value="color_7" id="header_bg_7">
+                    <label for="header_bg_7"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="header_bg" value="color_8" id="header_bg_8">
+                    <label for="header_bg_8"></label>
+                  </span>
+				</li>
+				<li class="drop-title"><p>侧边栏</p></li>
+				<li class="drop-skin-li clearfix">
+                  <span class="inverse">
+                    <input type="radio" name="sidebar_bg" value="default" id="sidebar_bg_1" checked>
+                    <label for="sidebar_bg_1"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="sidebar_bg" value="color_2" id="sidebar_bg_2">
+                    <label for="sidebar_bg_2"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="sidebar_bg" value="color_3" id="sidebar_bg_3">
+                    <label for="sidebar_bg_3"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="sidebar_bg" value="color_4" id="sidebar_bg_4">
+                    <label for="sidebar_bg_4"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="sidebar_bg" value="color_5" id="sidebar_bg_5">
+                    <label for="sidebar_bg_5"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="sidebar_bg" value="color_6" id="sidebar_bg_6">
+                    <label for="sidebar_bg_6"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="sidebar_bg" value="color_7" id="sidebar_bg_7">
+                    <label for="sidebar_bg_7"></label>
+                  </span>
+                  <span>
+                    <input type="radio" name="sidebar_bg" value="color_8" id="sidebar_bg_8">
+                    <label for="sidebar_bg_8"></label>
+                  </span>
+				</li>
+			  </ul>
+			</li>
+            <!--切换主题配色-->
+          </ul>
+          
+        </div>
+      </nav>
+      
+    </header>
+    <!--End 头部信息-->
+    
+    <!--页面主要内容-->
+    <main class="lyear-layout-content custom-scroll">
+      
+      <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- 修改后的模态框结构 -->
+                <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content bg-white rounded-lg shadow-xl">
+                      <div class="modal-header bg-blue-500 text-white p-4 rounded-t-lg">
+                        <h5 class="modal-title text-xl font-bold" id="addUserModalLabel">新增用户</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body p-6">
+                        <form id="addUserForm">
+                          <div class="form-group mb-4">
+                            <label for="userid" class="block text-gray-700 text-sm font-semibold mb-2">用户-车队编号</label>
+                            <input type="text" class="form-control w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" id="userid" name="userid" required>
+                            <div class="error-msg text-red-500 text-sm mt-1" id="userid-error"></div>
+                          </div>
+                          <div class="form-group mb-4">
+                            <label for="tmpID" class="block text-gray-700 text-sm font-semibold mb-2">TMP-ID</label>
+                            <input type="text" class="form-control w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" id="tmpID" name="tmpID">
+                            <div class="error-msg text-red-500 text-sm mt-1" id="tmpID-error"></div>
+                          </div>
+                          <div class="form-group mb-4">
+                            <label for="QQID" class="block text-gray-700 text-sm font-semibold mb-2">QQ</label>
+                            <input type="text" class="form-control w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" id="QQID" name="QQID">
+                            <div class="error-msg text-red-500 text-sm mt-1" id="QQID-error"></div>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer bg-gray-100 p-4 rounded-b-lg">
+                        <button type="button" class="btn btn-secondary px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition" id="submitAddUser">保存</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+    
+                <div class="card">
+                    <div class="card-toolbar clearfix">
+                        <form class="pull-right search-bar" method="get" action="#!" role="form">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+                                    <input type="hidden" name="search_field" id="search-field" value="userid">
+                                    <button class="btn btn-default dropdown-toggle" id="search-btn" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
+                                        用户编号 <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li> <a tabindex="-1" href="javascript:void(0)" data-field="userid">用户编号</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:void(0)" data-field="tmpID">TMP-ID</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:void(0)" data-field="QQID">QQ</a> </li>
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" value="" name="keyword" placeholder="请输入名称" id="search-keyword">
+                            </div>
+                        </form>
+                        <div class="toolbar-btn-action">
+                            <a class="btn btn-primary m-r-5" href="#" data-toggle="modal" data-target="#addUserModal"><i class="mdi mdi-plus"></i> 新增</a>
+                            <a class="btn btn-success m-r-5" href="#!"><i class="mdi mdi-check"></i> 启用</a>
+                            <a class="btn btn-warning m-r-5" href="#!"><i class="mdi mdi-block-helper"></i> 禁用</a>
+                            <a class="btn btn-danger" href="#!" id="deleteSelectedUsers"><i class="mdi mdi-window-close"></i> 删除</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="dynamic-table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <label class="lyear-checkbox checkbox-primary">
+                                                <input type="checkbox" id="check-all"><span></span>
+                                            </label>
+                                        </th>
+                                        <th>用户编号</th>
+                                        <th>TMP-ID</th>
+                                        <th>QQ</th>
+                                        <th>积分</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data-table-body">
+                                    <!-- 动态加载的数据将插入到这里 -->
+                                </tbody>
+                            </table>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center" id="pagination-container">
+                                    <!-- 分页按钮将插入到这里 -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal" onclick="hideModal()">
+      <img id="modal-image" class="modal-image">
+    </div>
+      
+    </main>
+    <!--End 页面主要内容-->
+
+    <!-- 自定义模态框 -->
+    <div id="confirm-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+          <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-red-600">提示</h3>
+              <button id="close-modal-btn" class="text-gray-500 hover:text-gray-700">&times;</button>
+          </div>
+          <div class="mb-4">
+              <p id="modal-message" class="text-gray-700">确定要退出登录吗？</p>
+          </div>
+          <div class="flex justify-end space-x-4">
+              <button id="cancel-modal-btn" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">取消</button>
+              <button id="confirm-modal-btn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">确定</button>
+          </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 引入 jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  async function getSettings() {
+    try {
+        const settings = await window.electronAPI.loadSettings();
+        return settings;
+    } catch (error) {
+        console.error('获取设置时出错:', error);
+        return {};
+    }
+  }
+
+  $(document).ready(async function() {
+      const settings = await getSettings();
+      const SERVER_IP = settings.serverIp || "127.0.0.1";
+      const WORKING_PORT = settings.workingPort || "3000";
+  
+      function loadUsers(page = 1, search = "") {
+        const jwtToken = localStorage.getItem('jwtToken');
+        const operatorId = localStorage.getItem('operatorId');
+  
+        if (!jwtToken || !operatorId) {
+            alert('请先登录');
+            return;
+        }
+  
+          $.ajax({
+              url: `http://${SERVER_IP}:${WORKING_PORT}/user?operator=${encodeURIComponent(operatorId)}&page=${encodeURIComponent(page)}&search=${encodeURIComponent(search)}`,
+              method: 'GET',
+              headers: {
+                  'Authorization': `Bearer ${jwtToken}`
+              },
+              success: function(response) {
+                  $('#data-table-body').empty();
+                  response.data.forEach(user => {
+                      const row = `
+                          <tr>
+                              <td>
+                                  <label class="lyear-checkbox checkbox-primary">
+                                      <input type="checkbox" name="ids[]" value="${user.id}"><span></span>
+                                  </label>
+                              </td>
+                              <td>${user.userid}</td>
+                              <td>${user.tmpID || '无'}</td>
+                              <td>${user.QQID || '无'}</td>
+                              <td>${user.score}</td>
+                              <td><font class="${user.isEnable ? 'text-success' : 'text-danger'}">${user.isEnable ? '正常' : '禁用'}</font></td>
+                              <td>
+                                  <div class="btn-group">
+                                      <button class="btn btn-xs btn-default edit-btn" data-id="${user.id}" title="编辑"><i class="mdi mdi-pencil"></i></button>
+                                      <button class="btn btn-xs btn-default toggle-btn" data-id="${user.id}" data-status="${user.isEnable}" title="${user.isEnable ? '禁用' : '启用'}">
+                                          <i class="mdi ${user.isEnable ? 'mdi-block-helper' : 'mdi-check'}"></i>
+                                      </button>
+                                      <button class="btn btn-xs btn-default delete-btn" data-id="${user.id}" title="删除"><i class="mdi mdi-window-close"></i></button>
+                                  </div>
+                              </td>
+                          </tr>
+                      `;
+                      $('#data-table-body').append(row);
+                  });
+                  updatePagination(Math.ceil(response.total / 10), page);
+              },
+              error: function(xhr, status, error) {
+                  console.error("Error:", xhr.responseText);
+              }
+          });
+      }
+  
+      function updatePagination(totalPage, currentPage) {
+          $('#pagination-container').empty();
+          for (let i = 1; i <= totalPage; i++) {
+              $('#pagination-container').append(`
+                  <li class="page-item ${i === currentPage ? 'active' : ''}">
+                      <a class="page-link" href="#" data-page="${i}">${i}</a>
+                  </li>
+              `);
+          }
+      }
+  
+      loadUsers();
+  
+      $(document).on('click', '.page-link', function(e) {
+          e.preventDefault();
+          const page = $(this).data('page');
+          loadUsers(page);
+      });
+  
+      $('.search-bar input[type="text"]').on('input', function() {
+          const keyword = $(this).val();
+          loadUsers(1, keyword);
+      });
+  
+      $(document).on('click', '.delete-btn', function() {
+          const userId = $(this).data('id');
+          if (confirm('确认删除用户？')) {
+              const jwtToken = localStorage.getItem('jwtToken');
+              const operatorId = localStorage.getItem('operatorId');
+
+              if (!jwtToken || !operatorId) {
+                  alert('请先登录');
+                  return;
+              }
+
+              // 构建带有 operator 参数的 URL
+              const urlWithQueryParams = `http://${SERVER_IP}:${WORKING_PORT}/user?operator=${encodeURIComponent(operatorId)}`;
+
+              $.ajax({
+                  url: urlWithQueryParams,
+                  method: 'DELETE',
+                  headers: {
+                      'Authorization': `Bearer ${jwtToken}`,
+                      'Content-Type': 'application/json'
+                  },
+                  data: JSON.stringify({ id: userId }), // 请求体中包含用户 ID
+                  success: function(response) {
+                      if (response.status === 'success') {
+                          alert('用户删除成功');
+                          loadUsers();
+                      } else {
+                          alert(`删除用户失败: ${response.message}`);
+                      }
+                  },
+                  error: function(xhr, status, error) {
+                      console.error("Delete Error:", xhr.responseText);
+                  }
+              });
+          }
+      });
+  
+      $(document).on('click', '.toggle-btn', function() {
+          const userId = $(this).data('id');
+          const newStatus = $(this).data('status') ? 0 : 1;
+  
+          const jwtToken = localStorage.getItem('jwtToken');
+          const operatorId = localStorage.getItem('operatorId');
+  
+          if (!jwtToken || !operatorId) {
+              alert('请先登录');
+              return;
+          }
+  
+          $.ajax({
+              url: `http://${SERVER_IP}:${WORKING_PORT}/user`,
+              method: 'PUT',
+              contentType: 'application/json',
+              headers: {
+                  'Authorization': `Bearer ${jwtToken}`
+              },
+              data: JSON.stringify({ id: userId, isEnable: newStatus }),
+              success: function() {
+                  loadUsers();
+              }
+          });
+      });
+  
+      // 在 AJAX 提交逻辑中增加错误处理
+      $('#submitAddUser').click(function() {
+        // 清空之前的错误提示
+        $('.error-msg').text('');
+
+        const newUserDetails = {
+          userid: $('#userid').val().trim(),
+          tmpID: $('#tmpID').val().trim(),
+          QQID: $('#QQID').val().trim()
+        };
+
+        const jwtToken = localStorage.getItem('jwtToken');
+        const operatorId = localStorage.getItem('operatorId');
+
+        if (!jwtToken || !operatorId) {
+          showError('userid', '请先登录'); // 统一使用错误提示函数
+          return;
+        }
+
+        $.ajax({
+          url: `http://${SERVER_IP}:${WORKING_PORT}/user?operator=${encodeURIComponent(operatorId)}`,
+          method: 'POST',
+          contentType: 'application/json',
+          headers: {
+            'Authorization': `Bearer ${jwtToken}`
+          },
+          data: JSON.stringify(newUserDetails),
+          success: function(response) {
+            if (response.status === 'success') {
+              $('#addUserModal').modal('hide');
+              $('#addUserForm')[0].reset(); // 重置表单
+              loadUsers();
+            } else {
+              // 处理字段级错误
+              if (response.errors) {
+                response.errors.forEach(err => {
+                  showError(err.field, err.message);
+                });
+              } else {
+                showError('general', response.msg || '未知错误');
+              }
+            }
+          },
+          error: function(xhr) {
+            const response = JSON.parse(xhr.responseText);
+            if (xhr.status === 400 && response.errors) {
+              response.errors.forEach(err => {
+                showError(err.field, err.message);
+              });
+            } else {
+              showError('general', response.msg || '服务器错误');
+            }
+          }
+        });
+      });
+
+      // 显示错误提示的函数
+      function showError(field, message) {
+        if (field === 'general') {
+          $('#userid-error').text(message); // 选一个固定位置显示全局错误
+        } else {
+          $(`#${field}-error`).text(message);
+        }
+      }
+
+      // 模态框关闭时重置状态
+      $('#addUserModal').on('hidden.bs.modal', function() {
+        $('#addUserForm')[0].reset();
+        $('.error-msg').text('');
+      });
+  
+      $('#deleteSelectedUsers').click(function() {
+          const selectedIds = [];
+          $('input[name="ids[]"]:checked').each(function() {
+              selectedIds.push($(this).val());
+          });
+
+          if (selectedIds.length === 0) {
+              alert('请选择要删除的用户');
+              return;
+          }
+
+          if (confirm('确认删除选中的用户？')) {
+              const jwtToken = localStorage.getItem('jwtToken');
+              const operatorId = localStorage.getItem('operatorId');
+
+              if (!jwtToken || !operatorId) {
+                  alert('请先登录');
+                  return;
+              }
+
+              // 构建带有 operator 参数的 URL
+              const urlWithQueryParams = `http://${SERVER_IP}:${WORKING_PORT}/user?operator=${encodeURIComponent(operatorId)}`;
+
+              $.ajax({
+                  url: urlWithQueryParams,
+                  method: 'DELETE',
+                  headers: {
+                      'Authorization': `Bearer ${jwtToken}`,
+                      'Content-Type': 'application/json'
+                  },
+                  data: JSON.stringify({ ids: selectedIds }), // 请求体中包含多个用户 ID
+                  success: function(response) {
+                      if (response.status === 'success') {
+                          alert('用户删除成功');
+                          loadUsers(); // 重新加载用户列表
+                      } else {
+                          alert(`删除用户失败: ${response.message}`);
+                      }
+                  },
+                  error: function(xhr, status, error) {
+                      console.error("Delete Selected Users Error:", xhr.responseText);
+                  }
+              });
+          }
+      });
+  });
+</script>
+
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../js/perfect-scrollbar.min.js"></script>
+<script type="text/javascript" src="../js/main.min.js"></script>
+<script type="text/javascript">
+$(function(){
+    $('.search-bar .dropdown-menu a').click(function() {
+        var field = $(this).data('field') || '';
+        $('#search-field').val(field);
+        $('#search-btn').html($(this).text() + ' <span class="caret"></span>');
+    });
+});
+</script>
+</body>
+</html>

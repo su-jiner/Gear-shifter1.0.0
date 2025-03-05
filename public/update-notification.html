@@ -1,0 +1,135 @@
+<!-- public/update-notification.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发现新版本</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgba(0, 0, 0, 0); /* 透明背景 */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* 隐藏滚动条 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box; /* 确保padding和border包含在元素的总宽高内 */
+            overflow: hidden; /* 防止内部元素溢出产生滚动条 */
+        }
+        h1 {
+            color: #333;
+            margin: 0;
+        }
+        p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 20px;
+            max-height: calc(100% - 250px); /* 调整以适应剩余空间 */
+            overflow-y: auto; /* 如果内容超出容器则允许滚动 */
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .buttons {
+            text-align: center; /* 修改为居中对齐 */
+            margin-top: 20px; /* 增加顶部外边距以提供一些空间 */
+        }
+        .message {
+            color: red;
+            margin-top: 20px;
+            display: none; /* 默认隐藏 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>发现新版本</h1>
+        <p>发现新版本 <strong><span id="version"></span></strong>，发布于 <strong><span id="releaseDate"></span></strong></p>
+        <p>更新内容:</p>
+        <ul id="content"></ul>
+        <div class="buttons">
+            <button id="updateNow">立即更新</button>
+            <button id="later">稍后再说</button>
+        </div>
+        <div id="message" class="message">请关闭应用程序以完成更新安装。</div>
+    </div>
+
+    <script>
+        // 确保 DOM 已经加载完成
+        document.addEventListener('DOMContentLoaded', () => {
+            const version = document.getElementById('version');
+            const releaseDate = document.getElementById('releaseDate');
+            const content = document.getElementById('content');
+            const message = document.getElementById('message');
+
+            // 获取从主进程传递的数据
+            const data = JSON.parse(decodeURIComponent(location.search.substring(1)));
+
+            version.textContent = data.version;
+            releaseDate.textContent = data.releaseDate;
+
+            data.content.forEach(section => {
+                section.items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    content.appendChild(li);
+                });
+            });
+
+            document.getElementById('updateNow').addEventListener('click', () => {
+                window.electronAPI.startDownload(data.downloadUrl); // 调用预加载脚本的方法
+                message.style.display = 'block'; // 显示提示信息
+                window.electronAPI.disableInteraction('true'); // 禁用主窗口交互
+            });
+
+            document.getElementById('later').addEventListener('click', () => {
+                window.close();
+            });
+
+            // 监听来自主进程的消息以禁用交互
+            window.electronAPI.onDisableUI((event, disable) => {
+                if (disable === 'true') {
+                    message.style.display = 'block'; // 显示提示信息
+                } else {
+                    message.style.display = 'none'; // 隐藏提示信息
+                }
+            });
+
+            // 提供关闭应用程序的功能
+            window.electronAPI.closeApp = () => {
+                ipcRenderer.send('close-app');
+            };
+        });
+    </script>
+</body>
+</html>

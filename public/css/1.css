@@ -1,0 +1,33 @@
+/* 模态框样式 */
+#notDevelopedModal {
+    display: none; /* 默认隐藏 */
+}
+
+#notDevelopedModal.active {
+    display: flex; /* 显示时使用 flex 布局 */
+}
+
+#notDevelopedModal .bg-white {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#notDevelopedModal p {
+    font-size: 16px;
+    color: #333;
+}
+
+#notDevelopedModal button {
+    background-color: #3b82f6;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#notDevelopedModal button:hover {
+    background-color: #2563eb;
+}
