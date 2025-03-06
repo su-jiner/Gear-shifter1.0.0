@@ -252,7 +252,7 @@
     
                     // 根据用户选择的登录方式发送不同的参数
                     const loginData = loginMethod === 'username' 
-                        ? { username: parseInt(username), password: hashedPassword }
+                        ? { username: username, password: hashedPassword }
                         : { QQID: QQID, password: hashedPassword };
     
                     Promise.all([minLoadingTime, $.ajax({

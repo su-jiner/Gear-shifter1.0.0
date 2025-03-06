@@ -689,6 +689,9 @@ document.getElementById('upload-btn').addEventListener('click', async function()
     }
 
     // 获取 Token 和 operatorId
+    const settings = await getSettings();
+    const SERVER_IP = settings.serverIp || "127.0.0.1";
+    const WORKING_PORT = settings.workingPort || "3000";
     const token = localStorage.getItem('jwtToken');
     const operatorId = localStorage.getItem('operatorId');
 
@@ -702,7 +705,7 @@ document.getElementById('upload-btn').addEventListener('click', async function()
 
     try {
         // 发送上传请求
-        const response = await fetch(`http://localhost:3000/file/upload`, {
+        const response = await fetch(`http://${SERVER_IP}:${WORKING_PORT}/file/upload?operator=${encodeURIComponent(operatorId)}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
