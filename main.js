@@ -5,6 +5,7 @@ const fs = require('fs');
 const os = require('os');
 const AdmZip = require('adm-zip');
 const Registry = require('winreg'); // 使用 winreg 库来操作 Windows 注册表
+const { exec } = require('child_process'); // 导入 exec 函数
 
 let updateWindow = null; // 用于存储更新提示窗口
 let mainWindow;
@@ -256,3 +257,73 @@ ipcMain.on('close-update-window', () => {
 ipcMain.handle('get-settings', async () => {
     return loadSettings();
 });
+
+// 强制删除文件或目录（使用命令行工具）
+function forceDeleteWithCmd(pathToDelete) {
+    return new Promise((resolve, reject) => {
+      const isDirectory = fs.existsSync(pathToDelete) && fs.lstatSync(pathToDelete).isDirectory();
+      const command = isDirectory
+        ? `rmdir /s /q "${pathToDelete}"` // 删除目录
+        : `del /f /q "${pathToDelete}"`; // 删除文件
+  
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`强制删除失败: ${pathToDelete}`, error);
+          reject(error);
+        } else {
+          console.log(`强制删除成功: ${pathToDelete}`);
+          resolve();
+        }
+      });
+    });
+  }
+  
+  // 重试机制
+  async function deleteWithRetry(pathToDelete, retries = 3, delay = 1000) {
+    for (let i = 0; i < retries; i++) {
+      try {
+        if (fs.existsSync(pathToDelete)) {
+          await forceDeleteWithCmd(pathToDelete);
+          return true;
+        } else {
+          console.log(`路径不存在: ${pathToDelete}`);
+          return false;
+        }
+      } catch (error) {
+        if (i === retries - 1) {
+          console.error(`删除失败，重试次数用尽: ${pathToDelete}`, error);
+          throw error;
+        } else {
+          console.warn(`删除失败，剩余重试次数: ${retries - i - 1}`);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      }
+    }
+  }
+  
+  // 删除文件和解压目录的 IPC 处理
+  ipcMain.on('delete-files', async (event, fileName) => {
+    getDocumentsPath(async (documentsPath) => {
+      try {
+        const savePath = path.join(documentsPath, 'Euro Truck Simulator 2', 'profiles');
+        const zipFilePath = path.join(savePath, fileName); // file.zip 文件的完整路径
+  
+        // 删除 ZIP 文件
+        if (fs.existsSync(zipFilePath)) {
+          await deleteWithRetry(zipFilePath);
+          console.log(`Deleted ZIP: ${zipFilePath}`);
+        }
+  
+        event.reply('delete-files-reply', {
+          success: true,
+          message: `文件 ${fileName} 已删除`,
+        });
+      } catch (error) {
+        console.error('删除失败:', error);
+        event.reply('delete-files-reply', {
+          success: false,
+          message: `删除失败: ${error.message}`,
+        });
+      }
+    });
+  });

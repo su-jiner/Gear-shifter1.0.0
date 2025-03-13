@@ -304,11 +304,15 @@
             function handleResponse(response) {
                 if (response.status === 'success') {
                     // 保存JWT、操作者ID和头像链接等到localStorage
-                    localStorage.setItem('jwtToken', response.token);
+                    localStorage.setItem('user', JSON.stringify(response.user)); // 用于传递到profile.html页面
+                    localStorage.setItem('jwtToken', response.token); // 保存JWT
                     localStorage.setItem('operatorId', response.user.id); // 使用后端返回的user.id作为操作者ID
                     localStorage.setItem('avatar', response.user.avatar); // 保存头像链接
                     localStorage.setItem('QQID', response.user.QQID); // 保存QQID
+                    localStorage.setItem('tmpID', response.user.tmpID); // 保存tmpID
                     localStorage.setItem('userid', response.user.userid); // 保存userid
+                    localStorage.setItem('adminRole', response.user.adminRole); // 保存职位
+                    localStorage.setItem('score', response.user.score); // 保存积分
     
                     // 保存登录状态和用户信息到sessionStorage
                     sessionStorage.setItem('isLoggedIn', 'true');

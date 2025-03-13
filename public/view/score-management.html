@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>设置 - 中国星域</title>
+<title>积分管理 - 中国星域</title>
 <link rel="icon" href="favicon.ico" type="image/ico">
 <meta name="keywords" content="中国星域,星域,星域俱乐部,接档器">
 <meta name="description" content="中国星域接档器是一个快捷方便的欧卡2接档工具。">
@@ -15,211 +15,58 @@
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <!-- 引入 Font Awesome 图标库 -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-<!-- 引入 SweetAlert2 CSS 和 JS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link href="../css/style.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script src="../scriptjs/logout-setting.js"></script>
-<script src="../scriptjs/auth-check.js"></script>
-
-<style>
-.avatar-container {
-  position: relative;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.avatar-hover {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  border-radius: 50%;
-  opacity: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.3s;
-}
-.avatar-container:hover .avatar-hover {
-  opacity: 1;
-}
-.modal-input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
-}
-</style>
 
 <script>
-  // 获取设置
-  async function getSettings() {
-    try {
-      const settings = await window.electronAPI.loadSettings();
-      return settings;
-    } catch (error) {
-      console.error('获取设置时出错:', error);
-      return {};
-    }
+  function showModal(image) {
+      var modal = document.getElementById("modal");
+      var modalImage = document.getElementById("modal-image");
+      modal.style.display = "block";
+      modalImage.src = image.src;
   }
+                 
+  function hideModal() {
+      var modal = document.getElementById("modal");
+      modal.style.display = "none";
+  }
+  </script>
 
-  // 修改头像
-  async function updateAvatar() {
-    const newAvatarUrl = document.getElementById('avatar-url').value;
-    if (!newAvatarUrl) {
-      alert('请输入有效的头像URL');
-      return;
-    }
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      // 检查是否已登录并获取头像链接
+      const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+      let avatarUrl;
 
-    const user = JSON.parse(localStorage.getItem('user')) || {};
-    const data = {
-      id: user.id,
-      newAvatarUrl: newAvatarUrl  // 只需要 ID 和 新头像 URL
-    };
-
-    const jwtToken = localStorage.getItem('jwtToken');
-    const operatorId = localStorage.getItem('operatorId');
-
-    const settings = await getSettings();
-    const SERVER_IP = settings.serverIp || "127.0.0.1";
-    const WORKING_PORT = settings.workingPort || "3000";
-
-    $.ajax({
-      url: `http://${SERVER_IP}:${WORKING_PORT}/user/update-avatar?operator=${encodeURIComponent(operatorId)}`,
-      method: 'POST',
-      contentType: 'application/json',
-      headers: {
-        'Authorization': `Bearer ${jwtToken}`
-      },
-      data: JSON.stringify(data),
-      success: function(response) {
-        if (response.status === 'success') {
-          alert('头像更新成功');
-          localStorage.setItem('avatar', newAvatarUrl);
-          document.querySelectorAll('.avatar').forEach(img => img.src = newAvatarUrl);
-          document.getElementById('avatar-modal').classList.add('hidden');
-          // 显示建议重新登录的提示框
-          showReLoginNotification();
-        } else {
-          alert(response.message || '头像更新失败');
-        }
-      },
-      error: function(xhr) {
-        alert(`错误: ${xhr.statusText}`);
+      if (isLoggedIn) {
+          const user = JSON.parse(sessionStorage.getItem('user'));
+          if (user && user.avatar) {
+              avatarUrl = user.avatar;
+          }
+      } else {
+          avatarUrl = localStorage.getItem('avatar');
       }
-    });
-  }
 
-  // 显示建议重新登录的提示框
-  function showReLoginNotification() {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 8000, // 8秒后自动关闭
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.addEventListener('mouseenter', Swal.stopTimer)
-        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      // 如果有头像链接，则更新页面中的所有 img-avatar 元素
+      if (avatarUrl) {
+          const avatarImgs = document.querySelectorAll('.avatar');
+          avatarImgs.forEach(function (img) {
+              img.src = avatarUrl;
+          });
       }
-    });
-
-    Toast.fire({
-      icon: 'info',
-      title: '建议重新登录以使其他页面更改生效'
-    });
-  }
-
-  // 修改密码
-  async function changePassword() {
-    const newPassword = document.getElementById('new-password').value;
-    const confirmPassword = document.getElementById('confirm-password').value;
-
-    if (!newPassword || !confirmPassword) {
-      alert('请填写所有字段');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      alert('新密码与确认密码不一致');
-      return;
-    }
-
-    const user = JSON.parse(localStorage.getItem('user')) || {};
-    const data = {
-      id: user.id,
-      newPassword: newPassword
-    };
-
-    const jwtToken = localStorage.getItem('jwtToken');
-    const operatorId = localStorage.getItem('operatorId');
-
-    const settings = await getSettings();
-    const SERVER_IP = settings.serverIp || "127.0.0.1";
-    const WORKING_PORT = settings.workingPort || "3000";
-
-    $.ajax({
-      url: `http://${SERVER_IP}:${WORKING_PORT}/user/updatepassword?operator=${encodeURIComponent(operatorId)}`,
-      method: 'POST',
-      contentType: 'application/json',
-      headers: {
-        'Authorization': `Bearer ${jwtToken}`
-      },
-      data: JSON.stringify(data),
-      success: function(response) {
-        if (response.status === 'success') {
-          alert('密码修改成功');
-          document.getElementById('password-form').reset();
-          document.getElementById('password-modal').classList.add('hidden');
-        } else {
-          alert(response.message || '密码修改失败');
-        }
-      },
-      error: function(xhr) {
-        alert(`错误: ${xhr.statusText}`);
-      }
-    });
-  }
-
-  // 页面加载时初始化
-  document.addEventListener('DOMContentLoaded', () => {
-    // 从 localStorage 获取用户信息并填充到输入框中
-    const user = JSON.parse(localStorage.getItem('user')) || {};
-
-    const fields = {
-      'qq-id': user.QQID || '暂无信息',
-      'user-id': user.userid || '暂无信息',
-      'tmp-id': user.tmpID || '未填写',
-      'position': user.adminRole || '暂无信息',
-      'score': user.score || '0'
-    };
-
-    Object.entries(fields).forEach(([id, value]) => {
-      const el = document.getElementById(id);
-      if (el) el.value = value;
-    });
-
-    // 设置头像
-    const avatar = localStorage.getItem('avatar') || '../images/users/avatar.jpg';
-    document.querySelectorAll('.avatar').forEach(img => img.src = avatar);
   });
 
-  // 从 localStorage 获取数据并填充到输入框中
-  window.onload = function() {
-    const avatar = localStorage.getItem('avatar') || '../images/users/avatar.jpg';
-    const QQID = localStorage.getItem('QQID') || '123456789';
-    const userid = localStorage.getItem('userid') || '#000000';
-
-    document.getElementById('user-avatar').src = avatar;
-    document.getElementById('qq-id').value = QQID;
-    document.getElementById('user-id').value = userid;
-  };
+  // 更新头像函数
+  function updateAvatar(avatarUrl) {
+      const avatarImgs = document.querySelectorAll('.avatar');
+      avatarImgs.forEach(function (img) {
+          img.src = avatarUrl;
+      });
+  }
 </script>
-</head>
 
+</head>
+  
 <body>
 <div class="lyear-layout-web">
   <div class="lyear-layout-container">
@@ -242,11 +89,11 @@
               <ul class="nav nav-subnav">
                 <li> <a href="../view/user-management.html"><i class="mdi mdi-account-multiple"></i> 用户管理 </a></li>
                 <li> <a href="../view/event-management.html"><i class="mdi mdi-server-network"></i> 活动管理 </a></li>
-                <li> <a href="../view/score-management.html"><i class="mdi mdi-account"></i> 积分管理 </a></li>
+                <li> <a href="./score-management.html"><i class="mdi mdi-account"></i> 积分管理 </a></li>
               </ul>
             </li>
             <li class="nav-item active"> <a href="../error.html"><i class="mdi mdi-lock-outline"></i> 积分商城</a> </li>
-            <li class="nav-item active"> <a href="#"><i class="mdi mdi-account-settings"></i> 设置</a> </li>
+            <li class="nav-item active"> <a href="../setting/profile.html"><i class="mdi mdi-account-settings"></i> 设置</a> </li>
           </ul>
         </nav>
         
@@ -266,7 +113,7 @@
       
     </aside>
     <!--End 左侧导航-->
-
+    
     <!--头部信息-->
     <header class="lyear-layout-header">
       
@@ -279,7 +126,7 @@
               <span class="lyear-toggler-bar"></span>
               <span class="lyear-toggler-bar"></span>
             </div>
-            <span class="navbar-page-title"> 设置 </span>
+            <span class="navbar-page-title"> 积分管理 </span>
           </div>
           
           <ul class="topbar-right">
@@ -331,9 +178,9 @@
 
             </a>
               <ul class="dropdown-menu dropdown-menu-right">
-                <li> <a href="./profile.html"><i class="mdi mdi-account"></i> 个人信息</a> </li>
+                <li> <a href="../setting/profile.html"><i class="mdi mdi-account"></i> 个人信息</a> </li>
                                 <li>
-                    <a href="./profile.html#change-password-section">
+                    <a href="../setting/profile.html#change-password-section">
                         <i class="mdi mdi-lock-outline"></i> 修改密码
                     </a>
                 </li>
@@ -492,118 +339,117 @@
       </nav>
       
     </header>
-  <!--End 头部信息-->
+    <!--End 头部信息-->
+    
+    <!--页面主要内容-->
+    <main class="lyear-layout-content custom-scroll">
+      
+      <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- 编辑用户模态框 -->
+                <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                      <div class="modal-content bg-white rounded-lg shadow-xl">
+                        <div class="modal-header bg-blue-500 text-white p-4 rounded-t-lg">
+                          <h5 class="modal-title text-xl font-bold" id="editUserModalLabel">编辑积分</h5>
+                          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body p-6">
+                          <form id="editUserForm">
+                            <input type="hidden" id="edit-id" name="id">
+                            <!-- 用户信息展示（只读） -->
+                            <div class="form-group mb-4">
+                              <label class="block text-gray-700 text-sm font-semibold mb-2">用户编号</label>
+                              <input type="text" class="form-control w-full px-3 py-2 border rounded-lg bg-gray-100" 
+                                    id="edit-userid" readonly>
+                            </div>
+                            <div class="form-group mb-4">
+                              <label class="block text-gray-700 text-sm font-semibold mb-2">QQ</label>
+                              <input type="text" class="form-control w-full px-3 py-2 border rounded-lg bg-gray-100" 
+                                    id="edit-QQID" readonly>
+                            </div>
+                            <!-- 积分编辑字段 -->
+                            <div class="form-group mb-4">
+                              <label for="edit-score" class="block text-gray-700 text-sm font-semibold mb-2">积分</label>
+                              <input type="number" class="form-control w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                    id="edit-score" name="score" required>
+                              <div class="error-msg text-red-500 text-sm mt-1" id="edit-score-error"></div>
+                            </div>
+                          </form>
+                        </div>
+                        <div class="modal-footer bg-gray-100 p-4 rounded-b-lg">
+                          <button type="button" class="btn btn-secondary px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition" 
+                                  data-dismiss="modal">取消</button>
+                          <button type="button" class="btn btn-primary px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition" 
+                                  id="submitEditUser">保存</button>
+                        </div>
+                      </div>
+                    </div>
+                </div>
 
-  <!-- 页面主要内容 -->
-  <main class="lyear-layout-content custom-scroll">
-    <!-- 个人信息卡片 -->
-    <div class="container mx-auto p-4 space-y-6">
-      <div class="card bg-white p-6 rounded-xl shadow-xl">
-        <div class="flex flex-col items-center space-y-4">
-          <!-- 头像区域 -->
-          <div class="avatar-container w-32 h-32" onclick="document.getElementById('avatar-modal').classList.remove('hidden')">
-            <img class="avatar w-full h-full rounded-full object-cover" src="" alt="用户头像">
-            <div class="avatar-hover">
-              <span class="text-white font-bold">更换头像</span>
-            </div>
-          </div>
+                <div class="card">
+                    <div class="card-toolbar clearfix">
+                        <form class="pull-right search-bar" method="get" action="#!" role="form">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+                                    <input type="hidden" name="search_field" id="search-field" value="userid">
+                                    <button class="btn btn-default dropdown-toggle" id="search-btn" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
+                                        用户编号 <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li> <a tabindex="-1" href="javascript:void(0)" data-field="userid">用户编号</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:void(0)" data-field="tmpID">TMP-ID</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:void(0)" data-field="QQID">QQ</a> </li>
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" value="" name="keyword" placeholder="请输入名称" id="search-keyword">
+                            </div>
+                        </form>
+                    </div>
 
-          <!-- 个人信息 -->
-          <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-gray-600 mb-1">QQ号</label>
-              <input id="qq-id" type="text" readonly 
-                     class="w-full p-3 bg-gray-50 border rounded-lg focus:outline-none">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="dynamic-table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <label class="lyear-checkbox checkbox-primary">
+                                                <input type="checkbox" id="check-all"><span></span>
+                                            </label>
+                                        </th>
+                                        <th>用户编号</th>
+                                        <th>QQ</th>
+                                        <th>TMP-ID</th>
+                                        <th>积分</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data-table-body">
+                                    <!-- 动态加载的数据将插入到这里 -->
+                                </tbody>
+                            </table>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center" id="pagination-container">
+                                    <!-- 分页按钮将插入到这里 -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-              <label class="block text-gray-600 mb-1">用户编号</label>
-              <input id="user-id" type="text" readonly
-                     class="w-full p-3 bg-gray-50 border rounded-lg focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-gray-600 mb-1">TMP-ID</label>
-              <input id="tmp-id" type="text" readonly
-                     class="w-full p-3 bg-gray-50 border rounded-lg focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-gray-600 mb-1">职位</label>
-              <input id="position" type="text" readonly
-                     class="w-full p-3 bg-gray-50 border rounded-lg focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-gray-600 mb-1">车队</label>
-              <input type="text" value="中国星域俱乐部" readonly
-                     class="w-full p-3 bg-gray-50 border rounded-lg focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-gray-600 mb-1">积分</label>
-              <input id="score" type="text" readonly
-                     class="w-full p-3 bg-gray-50 border rounded-lg focus:outline-none">
-            </div>
-          </div>
         </div>
-      </div>
-
-      <!-- 修改密码卡片 -->
-      <div class="card bg-white p-6 rounded-xl shadow-xl">
-        <div class="version-header p-4 bg-blue-500 rounded-t-lg">
-          <h2 class="text-xl font-bold text-white text-center">
-            <i class="fas fa-lock mr-2"></i>修改密码
-          </h2>
-        </div>
-        <div class="p-6 space-y-4">
-          <button onclick="document.getElementById('password-modal').classList.remove('hidden')"
-                  class="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition">
-            修改密码
-          </button>
-        </div>
-      </div>
     </div>
 
-    <!-- 头像修改模态框 -->
-    <div id="avatar-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 w-96">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold">更换头像</h3>
-          <button onclick="document.getElementById('avatar-modal').classList.add('hidden')" 
-                  class="text-gray-500 hover:text-gray-700">&times;</button>
-        </div>
-        <input id="avatar-url" type="text" placeholder="输入图片URL" class="modal-input mb-4">
-        <div class="flex justify-end space-x-2">
-          <button onclick="document.getElementById('avatar-modal').classList.add('hidden')"
-                  class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">取消</button>
-          <button onclick="updateAvatar()" 
-                  class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">确认</button>
-        </div>
-      </div>
+    <div id="modal" class="modal" onclick="hideModal()">
+      <img id="modal-image" class="modal-image">
     </div>
-
-    <!-- 修改密码模态框 -->
-    <div id="password-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 w-96">
-        <div id="change-password-section" class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold">修改密码</h3>
-          <button onclick="document.getElementById('password-modal').classList.add('hidden')" 
-                  class="text-gray-500 hover:text-gray-700">&times;</button>
-        </div>
-        <form id="password-form" class="space-y-4">
-          <div>
-            <label class="block text-gray-600 mb-1">新密码</label>
-            <input id="new-password" type="password" class="modal-input" placeholder="请输入新密码">
-          </div>
-          <div>
-            <label class="block text-gray-600 mb-1">确认新密码</label>
-            <input id="confirm-password" type="password" class="modal-input" placeholder="请再次输入新密码">
-          </div>
-          <button type="button" onclick="changePassword()"
-                  class="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition">
-            确认修改
-          </button>
-        </form>
-      </div>
-    </div>
-  </main>
-  <!--End 页面主要内容-->
+      
+    </main>
+    <!--End 页面主要内容-->
 
     <!-- 自定义模态框 -->
     <div id="confirm-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -622,26 +468,172 @@
       </div>
     </div>
 
-    <!-- 自定义模态框 - 错误提示 -->
-    <div id="error-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-          <div class="flex justify-between items-center mb-4">
-              <h3 class="text-lg font-bold text-red-600">提示</h3>
-              <button id="close-error-modal-btn" class="text-gray-500 hover:text-gray-700 transition duration-200 ease-in-out text-xl">&times;</button>
-          </div>
-          <div class="mb-4">
-              <p id="error-modal-message" class="text-gray-700">请先登录</p>
-          </div>
-          <div class="flex justify-end">
-              <button id="ok-error-modal-btn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out">确定</button>
-          </div>
-      </div>
-    </div>
-
   </div>
 </div>
 
-<!-- 引入必要的JS库 -->
+<!-- 引入 jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    async function getSettings() {
+      try {
+          const settings = await window.electronAPI.loadSettings();
+          return settings;
+      } catch (error) {
+          console.error('获取设置时出错:', error);
+          return {};
+      }
+    }
+  
+    $(document).ready(async function() {
+        const settings = await getSettings();
+        const SERVER_IP = settings.serverIp || "127.0.0.1";
+        const WORKING_PORT = settings.workingPort || "3000";
+  
+        // 获取JWT Token和Operator ID
+        const jwtToken = localStorage.getItem('jwtToken');
+        const operatorId = localStorage.getItem('operatorId');
+  
+        if (!jwtToken || !operatorId) {
+            alert('请先登录');
+            return;
+        }
+  
+        function loadUsers(page = 1, search = "") {
+            $.ajax({
+                url: `http://${SERVER_IP}:${WORKING_PORT}/user?operator=${encodeURIComponent(operatorId)}&page=${encodeURIComponent(page)}&search=${encodeURIComponent(search)}`,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${jwtToken}`
+                },
+                success: function(response) {
+                    $('#data-table-body').empty();
+                    response.data.forEach(user => {
+                        const row = `
+                            <tr>
+                                <td>
+                                    <label class="lyear-checkbox checkbox-primary">
+                                        <input type="checkbox" name="ids[]" value="${user.id}"><span></span>
+                                    </label>
+                                </td>
+                                <td>${user.userid}</td>
+                                <td>${user.QQID || '未填写'}</td>
+                                <td>${user.tmpID || '未填写'}</td>
+                                <td>${user.score}</td>
+                                <td><font class="${user.isEnable ? 'text-success' : 'text-danger'}">${user.isEnable ? '正常' : '禁用'}</font></td>
+                                <td>
+                                    <button class="btn btn-xs btn-default edit-btn" 
+                                            data-id="${user.id}"
+                                            data-userid="${user.userid}"
+                                            data-qqid="${user.QQID}"
+                                            data-score="${user.score}">
+                                        <i class="mdi mdi-pencil"></i> 编辑
+                                    </button>
+                                </td>
+                            </tr>`;
+                        $('#data-table-body').append(row);
+                    });
+                    updatePagination(Math.ceil(response.total / 10), page);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error:", xhr.responseText);
+                }
+            });
+        }
+  
+        function updatePagination(totalPage, currentPage) {
+            $('#pagination-container').empty();
+            for (let i = 1; i <= totalPage; i++) {
+                $('#pagination-container').append(`
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>
+                `);
+            }
+        }
+  
+        loadUsers();
+  
+        $(document).on('click', '.page-link', function(e) {
+            e.preventDefault();
+            const page = $(this).data('page');
+            loadUsers(page);
+        });
+  
+        $('.search-bar input[type="text"]').on('input', function() {
+            const keyword = $(this).val();
+            loadUsers(1, keyword);
+        });
+  
+        // 编辑按钮点击事件
+        $(document).on('click', '.edit-btn', function() {
+            const userData = {
+                id: $(this).data('id'),
+                userid: $(this).data('userid'),
+                QQID: $(this).data('qqid'),
+                score: $(this).data('score')
+            };
+  
+            // 填充表单数据
+            $('#edit-id').val(userData.id);
+            $('#edit-userid').val(userData.userid);
+            $('#edit-QQID').val(userData.QQID);
+            $('#edit-score').val(userData.score);
+  
+            $('#editUserModal').modal('show');
+        });
+  
+        // 保存编辑
+        $('#submitEditUser').click(function() {
+            const editedData = {
+                id: $('#edit-id').val(),
+                newScore: $('#edit-score').val()
+            };
+  
+            if (!jwtToken || !operatorId) {
+                alert('请先登录');
+                return;
+            }
+  
+            updateScore(editedData, operatorId);
+        });
+  
+        async function updateScore(data, opId) {
+            const settings = await getSettings();
+            const SERVER_IP = settings.serverIp || "127.0.0.1";
+            const WORKING_PORT = settings.workingPort || "3000";
+  
+            $.ajax({
+                url: `http://${SERVER_IP}:${WORKING_PORT}/user/update-score?operator=${encodeURIComponent(opId)}`,
+                method: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': `Bearer ${jwtToken}`
+                },
+                data: JSON.stringify(data),
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $('#editUserModal').modal('hide');
+                        loadUsers(); // 重新加载数据
+                        alert('积分更新成功');
+                    } else {
+                        alert(response.message || '更新失败');
+                    }
+                },
+                error: function(xhr) {
+                    alert(`错误: ${xhr.statusText}`);
+                }
+            });
+        }
+  
+        // 模态框关闭时重置
+        $('#editUserModal').on('hidden.bs.modal', function() {
+            $('#editUserForm')[0].reset();
+            $('.error-msg').text('');
+        });
+    });
+</script>
+
 <script type="text/javascript" src="../js/jquery.min.js"></script>
 <script type="text/javascript" src="../js/bootstrap.min.js"></script>
 <script type="text/javascript" src="../js/perfect-scrollbar.min.js"></script>

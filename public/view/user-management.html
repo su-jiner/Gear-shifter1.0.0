@@ -89,7 +89,7 @@
               <ul class="nav nav-subnav">
                 <li> <a href="../view/user-management.html"><i class="mdi mdi-account-multiple"></i> 用户管理 </a></li>
                 <li> <a href="../view/event-management.html"><i class="mdi mdi-server-network"></i> 活动管理 </a></li>
-                <li> <a href="../error.html"><i class="mdi mdi-account"></i> 积分管理 </a></li>
+                <li> <a href="./score-management.html"><i class="mdi mdi-account"></i> 积分管理 </a></li>
               </ul>
             </li>
             <li class="nav-item active"> <a href="../error.html"><i class="mdi mdi-lock-outline"></i> 积分商城</a> </li>
@@ -178,8 +178,12 @@
 
             </a>
               <ul class="dropdown-menu dropdown-menu-right">
-                <li> <a href="../public/error.html"><i class="mdi mdi-account"></i> 个人信息</a> </li>
-                <li> <a href="../public/error.html"><i class="mdi mdi-lock-outline"></i> 修改密码</a> </li>
+                <li> <a href="../setting/profile.html"><i class="mdi mdi-account"></i> 个人信息</a> </li>
+                                <li>
+                    <a href="../setting/profile.html#change-password-section">
+                        <i class="mdi mdi-lock-outline"></i> 修改密码
+                    </a>
+                </li>
                 <li> <a href="javascript:void(0)"><i class="mdi mdi-delete"></i> 清空缓存</a></li>
                 <li class="divider"></li>
                 <li id="logout-link">
@@ -343,7 +347,7 @@
       <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
-                <!-- 修改后的模态框结构 -->
+                <!-- 模态框结构 -->
                 <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel" aria-hidden="true">
                   <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content bg-white rounded-lg shadow-xl">
@@ -367,7 +371,7 @@
                           </div>
                           <div class="form-group mb-4">
                             <label for="QQID" class="block text-gray-700 text-sm font-semibold mb-2">QQ</label>
-                            <input type="text" class="form-control w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" id="QQID" name="QQID">
+                            <input type="text" class="form-control w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" id="QQID" name="QQID" required>
                             <div class="error-msg text-red-500 text-sm mt-1" id="QQID-error"></div>
                           </div>
                         </form>
@@ -375,6 +379,67 @@
                       <div class="modal-footer bg-gray-100 p-4 rounded-b-lg">
                         <button type="button" class="btn btn-secondary px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition" data-dismiss="modal">取消</button>
                         <button type="button" class="btn btn-primary px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition" id="submitAddUser">保存</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 编辑用户模态框 -->
+                <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content bg-white rounded-lg shadow-xl">
+                      <div class="modal-header bg-blue-500 text-white p-4 rounded-t-lg">
+                        <h5 class="modal-title text-xl font-bold" id="editUserModalLabel">编辑用户</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body p-6">
+                        <form id="editUserForm">
+                          <input type="hidden" id="edit-id" name="id">
+                          <div class="form-group mb-4">
+                            <label for="edit-userid" class="block text-gray-700 text-sm font-semibold mb-2">用户-车队编号</label>
+                            <input type="text" class="form-control w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                  id="edit-userid" name="userid" required>
+                            <div class="error-msg text-red-500 text-sm mt-1" id="edit-userid-error"></div>
+                          </div>
+                          <div class="form-group mb-4">
+                            <label for="edit-tmpID" class="block text-gray-700 text-sm font-semibold mb-2">TMP-ID</label>
+                            <input type="text" class="form-control w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                  id="edit-tmpID" name="tmpID">
+                            <div class="error-msg text-red-500 text-sm mt-1" id="edit-tmpID-error"></div>
+                          </div>
+                          <div class="form-group mb-4">
+                            <label for="edit-adminRole" class="block text-gray-700 text-sm font-semibold mb-2">职位</label>
+                            <input type="text" class="form-control w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                  id="edit-adminRole" name="adminRole">
+                            <div class="error-msg text-red-500 text-sm mt-1" id="edit-adminRole-error"></div>
+                          </div>
+                          <div class="form-group mb-4">
+                            <label for="edit-QQID" class="block text-gray-700 text-sm font-semibold mb-2">QQ</label>
+                            <input type="text" class="form-control w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                  id="edit-QQID" name="QQID">
+                            <div class="error-msg text-red-500 text-sm mt-1" id="edit-QQID-error"></div>
+                          </div>
+                          <div class="form-group mb-4">
+                            <label for="edit-userPermissionLevel" class="block text-gray-700 text-sm font-semibold mb-2">权限等级</label>
+                            <select id="edit-userPermissionLevel" name="userPermissionLevel" class="form-control w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" disabled>
+                                <option value="">请选择权限等级</option>
+                                <option value="0">普通成员</option>
+                                <option value="8">用户管理</option>
+                                <option value="2">活动管理</option>
+                                <option value="4">积分管理</option>
+                                <option value="15">超级管理</option>
+                            </select>
+                            <div class="error-msg text-red-500 text-sm mt-1" id="edit-userPermissionLevel-error"></div>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer bg-gray-100 p-4 rounded-b-lg">
+                        <button type="button" class="btn btn-secondary px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition" 
+                                data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition" 
+                                id="submitEditUser">保存</button>
                       </div>
                     </div>
                   </div>
@@ -485,7 +550,9 @@
       const settings = await getSettings();
       const SERVER_IP = settings.serverIp || "127.0.0.1";
       const WORKING_PORT = settings.workingPort || "3000";
-  
+
+      let originalUserData = {}; // 用于保存原始用户数据
+
       function loadUsers(page = 1, search = "") {
         const jwtToken = localStorage.getItem('jwtToken');
         const operatorId = localStorage.getItem('operatorId');
@@ -513,13 +580,13 @@
                               </td>
                               <td>${user.userid}</td>
                               <td>${user.adminRole}</td>
-                              <td>${user.tmpID || '无'}</td>
-                              <td>${user.QQID || '无'}</td>
+                              <td>${user.tmpID || '未填写'}</td>
+                              <td>${user.QQID || '未填写'}</td>
                               <td>${user.score}</td>
                               <td><font class="${user.isEnable ? 'text-success' : 'text-danger'}">${user.isEnable ? '正常' : '禁用'}</font></td>
                               <td>
                                   <div class="btn-group">
-                                      <button class="btn btn-xs btn-default edit-btn" data-id="${user.id}" title="编辑"><i class="mdi mdi-pencil"></i></button>
+                                      <button class="btn btn-xs btn-default edit-btn" data-id="${user.id}" data-userid="${user.userid}" title="编辑"><i class="mdi mdi-pencil"></i></button>
                                       <button class="btn btn-xs btn-default toggle-btn" data-id="${user.id}" data-status="${user.isEnable}" title="${user.isEnable ? '禁用' : '启用'}">
                                           <i class="mdi ${user.isEnable ? 'mdi-block-helper' : 'mdi-check'}"></i>
                                       </button>
@@ -612,7 +679,7 @@
           }
   
           $.ajax({
-              url: `http://${SERVER_IP}:${WORKING_PORT}/user`,
+              url: `http://${SERVER_IP}:${WORKING_PORT}/user?operator=${encodeURIComponent(operatorId)}`,
               method: 'PUT',
               contentType: 'application/json',
               headers: {
@@ -625,6 +692,201 @@
           });
       });
   
+      // 编辑按钮点击事件
+      $(document).on('click', '.edit-btn', function() {
+          const userId = $(this).data('id');
+          const userid = $(this).data('userid');
+
+          // 保存原始用户数据
+          originalUserData = {
+              id: userId,
+              userid: userid,
+              tmpID: $(this).closest('tr').find('td').eq(3).text().trim() || '',
+              adminRole: $(this).closest('tr').find('td').eq(2).text().trim() || '',
+              QQID: $(this).closest('tr').find('td').eq(4).text().trim() || '',
+              userPermissionLevel: '' // 假设权限等级在表格中没有显示，需要从服务器获取
+          };
+
+          // 填充表单中的 id 和 userid
+          $('#edit-id').val(userId);
+          $('#edit-userid').val(userid);
+
+          // 填充其他字段的原始值
+          $('#edit-tmpID').val(originalUserData.tmpID);
+          $('#edit-adminRole').val(originalUserData.adminRole);
+          $('#edit-QQID').val(originalUserData.QQID);
+
+          // 从 localStorage 中获取当前用户的 adminRole
+          const currentUserAdminRole = localStorage.getItem('adminRole');
+
+          // 根据当前用户的 adminRole 决定是否启用权限等级选择框
+          const canEditPermission = ['技术团队主管', '技术团队副主管'].includes(currentUserAdminRole);
+          $('#edit-userPermissionLevel').prop('disabled', !canEditPermission);
+          if (canEditPermission) {
+              $('#edit-userPermissionLevel').val(originalUserData.userPermissionLevel);
+          } else {
+              $('#edit-userPermissionLevel').val('');
+          }
+
+          // 显示编辑模态框
+          $('#editUserModal').modal('show');
+      });
+
+      // 保存编辑
+      $('#submitEditUser').click(function() {
+          const editedUser = {
+              id: $('#edit-id').val(),
+              userid: $('#edit-userid').val().trim()
+          };
+
+          // 只提交修改的字段
+          if ($('#edit-tmpID').val().trim() !== originalUserData.tmpID) {
+              editedUser.tmpID = $('#edit-tmpID').val().trim();
+          }
+          if ($('#edit-adminRole').val().trim() !== originalUserData.adminRole) {
+              editedUser.adminRole = $('#edit-adminRole').val().trim();
+          }
+          if ($('#edit-QQID').val().trim() !== originalUserData.QQID) {
+              editedUser.QQID = $('#edit-QQID').val().trim();
+          }
+          if ($('#edit-userPermissionLevel').val().trim() !== originalUserData.userPermissionLevel) {
+              editedUser.userPermissionLevel = $('#edit-userPermissionLevel').val().trim();
+          }
+
+          const jwtToken = localStorage.getItem('jwtToken');
+          const operatorId = localStorage.getItem('operatorId');
+
+          if (!jwtToken || !operatorId) {
+              alert('请先登录');
+              return;
+          }
+
+          $.ajax({
+              url: `http://${SERVER_IP}:${WORKING_PORT}/user?operator=${encodeURIComponent(operatorId)}`,
+              method: 'PUT',
+              contentType: 'application/json',
+              headers: {
+                  'Authorization': `Bearer ${jwtToken}`
+              },
+              data: JSON.stringify(editedUser),
+              success: function(response) {
+                  if (response.status === 'success') {
+                      $('#editUserModal').modal('hide');
+                      loadUsers(); // 重新加载数据
+                  } else {
+                      // 处理错误
+                      if (response.errors) {
+                          response.errors.forEach(err => {
+                              $(`#edit-${err.field}-error`).text(err.message);
+                          });
+                      } else {
+                          alert(response.msg || '更新失败');
+                      }
+                  }
+              },
+              error: function(xhr) {
+                  const response = JSON.parse(xhr.responseText);
+                  if (xhr.status === 400 && response.errors) {
+                      response.errors.forEach(err => {
+                          $(`#edit-${err.field}-error`).text(err.message);
+                      });
+                  } else {
+                      alert(response.msg || '无权限');
+                  }
+              }
+          });
+      });
+
+      // 模态框关闭时重置
+      $('#editUserModal').on('hidden.bs.modal', function() {
+          $('#editUserForm')[0].reset();
+          $('.error-msg').text('');
+      });
+
+      // 单个用户状态切换
+      $(document).on('click', '.toggle-btn', function() {
+          const userId = $(this).data('id');
+          const newStatus = $(this).data('status') ? 0 : 1; // 转换为后端需要的状态值
+          const userid = $(this).closest('tr').find('td:eq(1)').text().trim(); // 获取用户编号
+
+          // 调用公共函数更新用户状态
+          updateUserStatus([{ id: userId, userid: userid, isEnable: newStatus }]);
+      });
+
+      // 批量启用/禁用
+      $('.btn-success').click(function() {
+          handleBatchUpdate(true); // true 表示启用
+      });
+
+      $('.btn-warning').click(function() {
+          handleBatchUpdate(false); // false 表示禁用
+      });
+
+      // 批量更新用户状态的函数
+      function handleBatchUpdate(isEnable) {
+          const selectedIds = [];
+          const selectedUserIds = [];
+
+          // 获取选中的用户 ID 和 userid
+          $('input[name="ids[]"]:checked').each(function() {
+              const row = $(this).closest('tr');
+              selectedIds.push($(this).val()); // 获取用户 ID
+              selectedUserIds.push(row.find('td:eq(1)').text().trim()); // 获取用户编号 (userid)
+          });
+
+          if (selectedIds.length === 0) {
+              alert('请选择要操作的用户');
+              return;
+          }
+
+          if (!confirm(`确定要${isEnable ? '启用' : '禁用'}选中的用户吗？`)) {
+              return;
+          }
+
+          // 构建请求数据
+          const requestData = selectedIds.map((id, index) => ({
+              id: id,
+              userid: selectedUserIds[index], // 对应的 userid
+              isEnable: isEnable ? 1 : 0 // 根据 isEnable 参数设置状态
+          }));
+
+          // 调用公共函数更新用户状态
+          updateUserStatus(requestData);
+      }
+
+      // 公共函数：更新用户状态
+      function updateUserStatus(data) {
+          const jwtToken = localStorage.getItem('jwtToken');
+          const operatorId = localStorage.getItem('operatorId');
+
+          if (!jwtToken || !operatorId) {
+              alert('请先登录');
+              return;
+          }
+
+          // 发送 AJAX 请求
+          $.ajax({
+              url: `http://${SERVER_IP}:${WORKING_PORT}/user?operator=${encodeURIComponent(operatorId)}`,
+              method: 'PUT',
+              contentType: 'application/json',
+              headers: {
+                  'Authorization': `Bearer ${jwtToken}`
+              },
+              data: JSON.stringify(data),
+              success: function(response) {
+                  if (response.status === 'success') {
+                      alert('操作成功');
+                      loadUsers(); // 刷新用户列表
+                  } else {
+                      alert(`操作失败: ${response.message}`);
+                  }
+              },
+              error: function(xhr) {
+                  alert(`操作失败: ${xhr.responseText}`);
+              }
+          });
+      }
+
       // 在 AJAX 提交逻辑中增加错误处理
       $('#submitAddUser').click(function() {
         // 清空之前的错误提示
@@ -675,7 +937,7 @@
                 showError(err.field, err.message);
               });
             } else {
-              showError('general', response.msg || '服务器错误');
+              showError('general', response.msg || '无权限');
             }
           }
         });

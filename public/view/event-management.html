@@ -179,8 +179,12 @@
 
             </a>
               <ul class="dropdown-menu dropdown-menu-right">
-                <li> <a href="../public/error.html"><i class="mdi mdi-account"></i> 个人信息</a> </li>
-                <li> <a href="../public/error.html"><i class="mdi mdi-lock-outline"></i> 修改密码</a> </li>
+                <li> <a href="../setting/profile.html"><i class="mdi mdi-account"></i> 个人信息</a> </li>
+                                <li>
+                    <a href="../setting/profile.html#change-password-section">
+                        <i class="mdi mdi-lock-outline"></i> 修改密码
+                    </a>
+                </li>
                 <li> <a href="javascript:void(0)"><i class="mdi mdi-delete"></i> 清空缓存</a></li>
                 <li class="divider"></li>
                 <li id="logout-link">
@@ -451,17 +455,18 @@
         <img id="modal-image" class="modal-image">
       </div>
 
-      <!-- 活动信息更新卡片 -->
+      <!-- 统一操作卡片 -->
       <div class="container mx-auto p-4 w-full space-y-8">
         <div class="card bg-white p-6 rounded-lg shadow-md w-full space-y-4">
-          <div class="version-header p-4">
+          <div class="version-header p-4 bg-purple-500 rounded-t-lg">
             <h2 class="text-xl font-bold text-white text-center flex items-center justify-center space-x-2">
-              <i class="fas fa-rocket"></i>
-              <span>活动信息更新</span>
+              <i class="fas fa-sync-alt"></i>
+              <span>活动信息与存档更新</span>
             </h2>
           </div>
           <div class="p-6 space-y-4">
-            <form id="activity-info-form" class="space-y-6">
+            <form id="combined-form" class="space-y-6">
+              <!-- 活动信息字段 -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">活动名称</label>
@@ -522,42 +527,71 @@
                   <input type="url" id="activity-detail-two-url" class="w-full modern-input rounded-lg p-3 border" placeholder="https://example.com/detail2" required>
                 </div>
               </div>
-              <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-gradient-to-l transition duration-300 ease-in-out">
-                提交更新
+
+              <!-- 文件上传部分 -->
+              <div class="grid grid-cols-1 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">存档文件（ZIP格式）</label>
+                  <input type="file" id="combined-upload" accept=".zip" class="w-full border border-gray-300 rounded-md p-3">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">存档名称</label>
+                  <input type="text" id="combined-filename" class="w-full modern-input rounded-lg p-3 border" placeholder="我的存档" required>
+                </div>
+              </div>
+              
+              <!-- 统一提交按钮 -->
+              <button type="button" id="combined-submit" 
+                      class="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-gradient-to-l transition duration-300 ease-in-out
+                            flex items-center justify-center">
+                <i class="fas fa-cloud-upload-alt mr-2"></i>
+                提交全部更新
               </button>
+              
+              <!-- 进度指示 -->
+              <div id="combined-progress" class="hidden">
+                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div id="combined-progress-bar" class="h-full bg-blue-500 transition-all" style="width: 0%"></div>
+                </div>
+                <div id="combined-status" class="text-sm text-gray-700 mt-2"></div>
+              </div>
             </form>
           </div>
         </div>
       </div>
 
-      <!-- 存档文件上传-->
+      <!-- 独立文件上传卡片 -->
       <div class="container mx-auto p-4 w-full space-y-8">
         <div class="card bg-white p-6 rounded-lg shadow-md w-full space-y-4">
-            <div class="version-header p-4 bg-blue-500 rounded-t-lg">
-                <h2 class="text-xl font-bold text-white text-center flex items-center justify-center space-x-2">
-                    <i class="fas fa-upload"></i>
-                    <span>上传存档文件</span>
-                </h2>
-            </div>
-            <div class="p-6 space-y-4">
-                <form id="upload-form" class="space-y-6">
-                    <div class="grid grid-cols-1 gap-6">
-                        <div>
-                            <label for="upload" class="block text-sm font-medium text-gray-700">选择ZIP文件</label>
-                            <input id="upload" type="file" accept=".zip" class="w-full border border-gray-300 rounded-md p-3 mt-1 focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-                    </div>
-                    <button type="button" id="upload-btn" class="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-gradient-to-l transition duration-300 ease-in-out">
-                        上传文件
-                    </button>
-                    <div id="progress-bar" class="hidden h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-blue-500" style="width: 0%"></div>
-                    </div>
-                    <div id="status-message" class="text-sm text-gray-700"></div>
-                </form>
-            </div>
+          <div class="version-header p-4 bg-blue-500 rounded-t-lg">
+            <h2 class="text-xl font-bold text-white text-center flex items-center justify-center space-x-2">
+              <i class="fas fa-upload"></i>
+              <span>独立文件更新</span>
+            </h2>
+          </div>
+          <div class="p-6 space-y-4">
+            <form id="upload-form" class="space-y-6">
+              <div class="grid grid-cols-1 gap-6">
+                <div>
+                  <label for="filename" class="block text-sm font-medium text-gray-700">文件名</label>
+                  <input id="filename" type="text" placeholder="请输入文件名" class="w-full border border-gray-300 rounded-md p-3 mt-1 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                  <label for="upload" class="block text-sm font-medium text-gray-700">选择ZIP文件</label>
+                  <input id="upload" type="file" accept=".zip" class="w-full border border-gray-300 rounded-md p-3 mt-1 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+              </div>
+              <button type="button" id="upload-btn" class="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-gradient-to-l transition duration-300 ease-in-out">
+                上传文件
+              </button>
+              <div id="progress-bar" class="hidden h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-blue-500" style="width: 0%"></div>
+              </div>
+              <div id="status-message" class="text-sm text-gray-700"></div>
+            </form>
+          </div>
         </div>
-    </div>
+      </div>
       
     </main>
     <!--End 页面主要内容-->
@@ -603,89 +637,121 @@
 <script src="https://cdn.jsdelivr.net/npm/tus-js-client@latest/dist/tus.js"></script>
 
 <script>
+  // 定义 getSettings 函数
   async function getSettings() {
     try {
-        const settings = await window.electronAPI.loadSettings();
-        return settings;
+      const settings = await window.electronAPI.loadSettings();
+      return settings;
     } catch (error) {
-        console.error('获取设置时出错:', error);
-        return {};
+      console.error('获取设置时出错:', error);
+      return {};
     }
   }
 
-  $(document).ready(async function() {
-    const settings = await getSettings();
-    const SERVER_IP = settings.serverIp || "127.0.0.1";
-    const WORKING_PORT = settings.workingPort || "3000";
-    const operatorId = localStorage.getItem('operatorId');
-    const jwtToken = localStorage.getItem('jwtToken');
+  // 统一提交按钮的点击事件
+  document.getElementById('combined-submit').addEventListener('click', async function() {
+    const updateProgress = (percentage, message) => {
+      document.getElementById('combined-progress').classList.remove('hidden');
+      document.getElementById('combined-progress-bar').style.width = `${percentage}%`;
+      document.getElementById('combined-status').textContent = message;
+    };
 
-    if (!jwtToken || !operatorId) {
-      alert('请先登录');
-      window.location.href = '../public/setting/login.html'; // 跳转到登录页
-      return;
-    }
+    try {
+      // 第一阶段：文件上传
+      updateProgress(30, '正在上传存档文件...');
+      
+      const file = document.getElementById('combined-upload').files[0];
+      const filename = document.getElementById('combined-filename').value.trim();
 
-    $('#activity-info-form').on('submit', function(event) {
-      event.preventDefault(); // 防止表单默认提交行为
+      // 文件验证逻辑
+      if (!file) throw new Error('请选择存档文件');
+      if (!filename) throw new Error('请输入存档名称');
+      if (file.name.split('.').pop().toLowerCase() !== 'zip') throw new Error('仅支持ZIP格式');
+      if (file.size > 1024 * 1024 * 1024) throw new Error('文件大小不能超过1GB');
 
-      const postData = {
-        name: $('#activity-name').val(),
-        server: $('#activity-server').val(),
-        activityDate: $('#activity-date').val(),
-        startTime: $('#activity-start-time').val(),
-        endTime: $('#activity-end-time').val(),
-        meetingLocation: $('#activity-meeting-location').val(),
-        finalDestination: $('#activity-final-destination').val(),
-        score: parseInt($('#activity-score').val(), 10),
-        routeURL: $('#activity-route-url').val(),
-        parkingSpotURL: $('#activity-parking-spot-url').val(),
-        detailOneURL: $('#activity-detail-one-url').val(),
-        detailTwoURL: $('#activity-detail-two-url').val()
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('filename', filename);
+
+      const settings = await getSettings(); // 调用 getSettings 函数
+      const SERVER_IP = settings.serverIp || "127.0.0.1";
+      const WORKING_PORT = settings.workingPort || "3000";
+      const token = localStorage.getItem('jwtToken');
+      const operatorId = localStorage.getItem('operatorId');
+
+      if (!token || !operatorId) throw new Error('请先登录');
+
+      const uploadResponse = await fetch(`http://${SERVER_IP}:${WORKING_PORT}/file/upload?operator=${encodeURIComponent(operatorId)}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+      
+      if (!uploadResponse.ok) throw new Error('文件上传失败');
+      
+      // 第二阶段：活动信息提交
+      updateProgress(70, '正在提交活动信息...');
+      
+      const activityData = {
+        name: document.getElementById('activity-name').value,
+        server: document.getElementById('activity-server').value,
+        activityDate: document.getElementById('activity-date').value,
+        startTime: document.getElementById('activity-start-time').value,
+        endTime: document.getElementById('activity-end-time').value,
+        meetingLocation: document.getElementById('activity-meeting-location').value,
+        finalDestination: document.getElementById('activity-final-destination').value,
+        score: parseInt(document.getElementById('activity-score').value, 10),
+        routeURL: document.getElementById('activity-route-url').value,
+        parkingSpotURL: document.getElementById('activity-parking-spot-url').value,
+        detailOneURL: document.getElementById('activity-detail-one-url').value,
+        detailTwoURL: document.getElementById('activity-detail-two-url').value,
+        fileName: filename // 将文件名提交到活动信息中
       };
 
-      $.ajax({
-        url: `http://${SERVER_IP}:${WORKING_PORT}/activity?operator=${encodeURIComponent(operatorId)}`,
+      const activityResponse = await fetch(`http://${SERVER_IP}:${WORKING_PORT}/activity?operator=${encodeURIComponent(operatorId)}`, {
         method: 'POST',
-        contentType: 'application/json',
         headers: {
-          'Authorization': `Bearer ${jwtToken}`
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        data: JSON.stringify(postData),
-        success: function(response) {
-          if (response.status === "success") {
-            alert('活动数据提交成功');
-            // 可选：清空表单或重置页面
-            $('#activity-info-form')[0].reset();
-          } else {
-            console.error('活动数据提交失败:', response.message);
-            alert('活动数据提交失败，请检查控制台日志');
-          }
-        },
-        error: function(xhr) {
-          console.error('活动数据提交失败:', xhr.responseText);
-          alert('活动数据提交失败，请检查控制台日志');
-        }
+        body: JSON.stringify(activityData)
       });
-    });
-  });
-</script>
+      
+      if (!activityResponse.ok) throw new Error('活动信息提交失败');
 
-<script>
-document.getElementById('upload-btn').addEventListener('click', async function() {
+      // 完成
+      updateProgress(100, '所有更新已完成！');
+      setTimeout(() => {
+        document.getElementById('combined-progress').classList.add('hidden');
+      }, 2000);
+
+    } catch (error) {
+      console.error('统一操作失败:', error);
+      updateProgress(0, `操作失败: ${error.message}`);
+      document.getElementById('combined-progress-bar').classList.add('bg-red-500');
+    }
+  });
+
+  // 独立上传按钮的点击事件
+  document.getElementById('upload-btn').addEventListener('click', async function() {
     const file = document.getElementById('upload').files[0];
+    const filename = document.getElementById('filename').value.trim();
+
     if (!file) return alert('请选择文件');
+    if (!filename) return alert('请输入文件名');
 
     // 检查文件类型
     const fileExt = file.name.split('.').pop().toLowerCase();
     if (fileExt !== 'zip') {
-        return alert('仅支持ZIP格式');
+      return alert('仅支持ZIP格式');
     }
 
     // 检查文件大小（限制为1GB）
     const maxSize = 1024 * 1024 * 1024; // 1GB
     if (file.size > maxSize) {
-        return alert('文件大小不能超过1GB');
+      return alert('文件大小不能超过1GB');
     }
 
     // 获取 Token 和 operatorId
@@ -696,37 +762,79 @@ document.getElementById('upload-btn').addEventListener('click', async function()
     const operatorId = localStorage.getItem('operatorId');
 
     if (!token || !operatorId) {
-        return alert('请先登录');
+      return alert('请先登录');
     }
 
     // 创建 FormData 对象
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('filename', filename);
 
     try {
-        // 发送上传请求
-        const response = await fetch(`http://${SERVER_IP}:${WORKING_PORT}/file/upload?operator=${encodeURIComponent(operatorId)}`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
-        });
+      // 显示上传进度
+      const progressBar = document.getElementById('progress-bar');
+      const statusMessage = document.getElementById('status-message');
+      progressBar.style.display = 'block';
+      statusMessage.textContent = '上传中...';
+      statusMessage.style.color = 'blue';
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || '上传失败');
-        }
+      // 发送上传请求
+      const uploadResponse = await fetch(`http://${SERVER_IP}:${WORKING_PORT}/file/upload?operator=${encodeURIComponent(operatorId)}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
 
-        const result = await response.json();
-        console.log('上传成功:', result);
-        alert('文件上传成功！');
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.message || '文件上传失败');
+      }
+
+      const uploadResult = await uploadResponse.json();
+      console.log('文件上传成功:', uploadResult);
+
+      // 提交文件名到活动信息
+      const activityData = {
+        fileName: filename // 仅提交文件名
+      };
+
+      const activityResponse = await fetch(`http://${SERVER_IP}:${WORKING_PORT}/activity/file?operator=${encodeURIComponent(operatorId)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(activityData)
+      });
+
+      if (!activityResponse.ok) {
+        const errorData = await activityResponse.json();
+        throw new Error(errorData.message || '文件名提交失败');
+      }
+
+      const activityResult = await activityResponse.json();
+      console.log('文件名提交成功:', activityResult);
+
+      // 更新进度条和状态信息
+      progressBar.style.width = '100%';
+      statusMessage.textContent = '文件上传且文件名提交成功';
+      statusMessage.style.color = 'green';
+      alert('文件上传且文件名提交成功！');
     } catch (error) {
-        console.error('上传失败:', error);
-        alert(`上传失败: ${error.message}`);
+      console.error('操作失败:', error);
+      alert(`操作失败: ${error.message}`);
+
+      // 更新进度条和状态信息
+      const progressBar = document.getElementById('progress-bar');
+      const statusMessage = document.getElementById('status-message');
+      progressBar.style.width = '0%';
+      statusMessage.textContent = '操作失败';
+      statusMessage.style.color = 'red';
     }
-});
-  </script>
+  });
+</script>
 
 <script type="text/javascript" src="../js/jquery.min.js"></script>
 <script type="text/javascript" src="../js/bootstrap.min.js"></script>

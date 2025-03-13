@@ -114,7 +114,7 @@
               <ul class="nav nav-subnav">
                 <li> <a href="./view/user-management.html"><i class="mdi mdi-account-multiple"></i> 用户管理 </a></li>
                 <li> <a href="./view/event-management.html"><i class="mdi mdi-server-network"></i> 活动管理 </a></li>
-                <li> <a href="error.html"><i class="mdi mdi-account"></i> 积分管理 </a></li>
+                <li> <a href="./view/score-management.html"><i class="mdi mdi-account"></i> 积分管理 </a></li>
               </ul>
             </li>
             <li class="nav-item active"> <a href="error.html"><i class="mdi mdi-lock-outline"></i> 积分商城</a> </li>
@@ -202,8 +202,12 @@
               </script>
 
               <ul class="dropdown-menu dropdown-menu-right">
-                <li> <a href="../public/error.html"><i class="mdi mdi-account"></i> 个人信息</a> </li>
-                <li> <a href="../public/error.html"><i class="mdi mdi-lock-outline"></i> 修改密码</a> </li>
+                <li> <a href="./setting/profile.html"><i class="mdi mdi-account"></i> 个人信息</a> </li>
+                <li>
+                    <a href="./setting/profile.html#change-password-section">
+                        <i class="mdi mdi-lock-outline"></i> 修改密码
+                    </a>
+                </li>
                 <li> <a href="javascript:void(0)"><i class="mdi mdi-delete"></i> 清空缓存</a></li>
                 <li class="divider"></li>
                 <li id="logout-link">
@@ -638,20 +642,20 @@
     </main>
     <!-- End 页面主要内容 -->
 
-                  <!-- 未开发提示框 -->
-                  <div id="notDevelopedModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
-                      <div class="flex justify-center items-center mb-4">
-                        <!-- 提示图标 -->
-                        <i class="mdi mdi-alert-circle-outline text-red-500 text-4xl"></i>
+                      <!-- 未开发提示框 -->
+                      <div id="notDevelopedModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
+                          <div class="flex justify-center items-center mb-4">
+                            <!-- 提示图标 -->
+                            <i class="mdi mdi-alert-circle-outline text-red-500 text-4xl"></i>
+                          </div>
+                          <p id="modal-message" class="text-gray-700">此功能尚未开发完成，请敬请期待。</p>
+                          <button id="closeModalBtn"
+                            class="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">确定</button>
+                        </div>
                       </div>
-                      <p id="modal-message" class="text-gray-700">此功能尚未开发完成，请敬请期待。</p>
-                      <button id="closeModalBtn"
-                        class="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">确定</button>
-                    </div>
-                  </div>
                   
-                  <script src="scriptjs/script.js"></script>
+    <script src="scriptjs/script.js"></script>
 
     <!-- 自定义模态框 -->
     <div id="confirm-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -697,6 +701,31 @@
       </div>
     </div>
 
+    <div id="downloadOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
+          <div class="flex justify-center items-center mb-4">
+              <!-- 加载动画 -->
+              <div class="spinner"></div>
+          </div>
+          <p class="text-gray-700">正在卸载文件，请稍候...</p>
+      </div>
+    </div>
+
+    <!-- 通用提示模态框 -->
+    <div id="result-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
+        <div class="flex justify-center items-center mb-4">
+          <!-- 动态图标（成功或失败） -->
+          <i id="result-icon" class="text-4xl"></i>
+        </div>
+        <p id="result-message" class="text-gray-700 mb-4"></p>
+        <button id="close-result-modal" 
+          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          确定
+        </button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -705,86 +734,195 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
-// 显示加载动画弹窗
-function showLoadingOverlay() {
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    loadingOverlay.classList.remove('hidden'); // 移除隐藏类
-    loadingOverlay.classList.add('active'); // 添加激活类
-}
-
-// 隐藏加载动画弹窗
-function hideLoadingOverlay() {
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    loadingOverlay.classList.remove('active'); // 移除激活类
-    loadingOverlay.classList.add('hidden'); // 添加隐藏类
-}
-
-// 更新模态框中的消息
-function updateModalMessage(message) {
-    const modalMessage = document.getElementById('modal-message');
-    modalMessage.textContent = message;
-}
-
-async function getSettings() {
-    try {
-        const settings = await window.electronAPI.loadSettings();
-        return settings;
-    } catch (error) {
-        console.error('获取设置时出错:', error);
-        return {};
-    }
-}
-
-document.getElementById('downloadButton').addEventListener('click', async function () {
-    showLoadingOverlay(); // 显示加载动画
-    const settings = await getSettings();
-    const SERVER_IP = settings.serverIp;
-    const WORKING_PORT = settings.workingPort;
-    const operatorId = localStorage.getItem('operatorId'); // 操作员ID
-
-    // 设置 JWT Token 到主进程
-    const jwtToken = localStorage.getItem('jwtToken'); // 从 localStorage 获取 JWT Token
-    if (!jwtToken) {
-        alert('JWT Token 未找到，请重新登录。');
-        hideLoadingOverlay();
-        return;
-    }
-    window.electronAPI.setJwtToken(jwtToken);
-
-    // 发起下载请求
-    window.electron.send('download-and-unzip', { serverIp: SERVER_IP, workingPort: WORKING_PORT, operatorId: operatorId });
-
-    // 监听主进程回复
-    window.electron.receive('download-and-unzip-reply', (args) => {
-        if (args.success) {
-            updateModalMessage(args.message); // 更新模态框中的消息
-            setTimeout(() => {
-                hideLoadingOverlay(); // 隐藏加载动画
-            }, 2000); // 2秒后隐藏弹窗
-        } else {
-            updateModalMessage(`错误: ${args.message}`); // 更新模态框中的消息
-            setTimeout(() => {
-                hideLoadingOverlay(); // 隐藏加载动画
-            }, 2000); // 2秒后隐藏弹窗
-        }
-    });
-});
-</script>
-
-<script src="./scriptjs/auth-check.js"></script>
-
-<script>
-  async function getSettings() {
-    try {
-        const settings = await window.electronAPI.loadSettings();
-        return settings;
-    } catch (error) {
-        console.error('获取设置时出错:', error);
-        return {};
-    }
+  // 显示加载动画弹窗
+  function showLoadingOverlay() {
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      loadingOverlay.classList.remove('hidden'); // 移除隐藏类
+      loadingOverlay.classList.add('active'); // 添加激活类
   }
-
-  document.addEventListener('DOMContentLoaded', async function() {
+  
+  // 隐藏加载动画弹窗
+  function hideLoadingOverlay() {
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      loadingOverlay.classList.remove('active'); // 移除激活类
+      loadingOverlay.classList.add('hidden'); // 添加隐藏类
+  }
+  
+  // 显示下载动画弹窗
+  function showdownloadOverlay() {
+      const downloadOverlay = document.getElementById('downloadOverlay');
+      downloadOverlay.classList.remove('hidden'); // 移除隐藏类
+      downloadOverlay.classList.add('active'); // 添加激活类
+  }
+  
+  // 隐藏下载动画弹窗
+  function hidedownloadOverlay() {
+      const downloadOverlay = document.getElementById('downloadOverlay');
+      downloadOverlay.classList.remove('active'); // 移除激活类
+      downloadOverlay.classList.add('hidden'); // 添加隐藏类
+  }
+  
+  // 更新模态框中的消息
+  function updateModalMessage(message) {
+      const modalMessage = document.getElementById('modal-message');
+      modalMessage.textContent = message;
+  }
+  
+  // 显示通用结果提示模态框
+  function showResultModal(isSuccess, message) {
+      const modal = document.getElementById('result-modal');
+      const icon = document.getElementById('result-icon');
+      const msg = document.getElementById('result-message');
+  
+      // 设置图标和颜色
+      if (isSuccess) {
+          icon.className = 'mdi mdi-check-circle-outline text-green-500';
+      } else {
+          icon.className = 'mdi mdi-alert-circle-outline text-red-500';
+      }
+  
+      msg.textContent = message;
+      modal.classList.remove('hidden');
+  }
+  
+  // 关闭通用提示模态框
+  document.getElementById('close-result-modal').addEventListener('click', () => {
+      document.getElementById('result-modal').classList.add('hidden');
+  });
+  
+  // 获取设置
+  async function getSettings() {
+      try {
+          const settings = await window.electronAPI.loadSettings();
+          return settings;
+      } catch (error) {
+          console.error('获取设置时出错:', error);
+          return {};
+      }
+  }
+  
+  // 接档按钮点击事件
+  document.getElementById('downloadButton').addEventListener('click', async function () {
+      showLoadingOverlay(); // 显示加载动画
+  
+      try {
+          const settings = await getSettings();
+          const SERVER_IP = settings.serverIp;
+          const WORKING_PORT = settings.workingPort;
+          const operatorId = localStorage.getItem('operatorId'); // 操作员ID
+  
+          // 设置 JWT Token 到主进程
+          const jwtToken = localStorage.getItem('jwtToken'); // 从 localStorage 获取 JWT Token
+          if (!jwtToken) {
+              alert('JWT Token 未找到，请重新登录。');
+              hideLoadingOverlay();
+              return;
+          }
+          window.electronAPI.setJwtToken(jwtToken);
+  
+          // 获取最近活动数据
+          const response = await fetch(`http://${SERVER_IP}:${WORKING_PORT}/activity/recently?operator=${encodeURIComponent(operatorId)}`, {
+              method: 'GET',
+              headers: {
+                  'Authorization': `Bearer ${jwtToken}`
+              }
+          });
+  
+          if (!response.ok) {
+              throw new Error('获取活动数据失败');
+          }
+  
+          const data = await response.json();
+          if (data.status !== "success" || !data.data) {
+              throw new Error('未找到活动数据');
+          }
+  
+          const activity = data.data;
+  
+          // 检查活动日期是否为当天
+          const activityDate = new Date(activity.activityDate).toDateString(); // 转换为日期字符串（忽略时间）
+          const today = new Date().toDateString(); // 获取当天日期字符串
+  
+          if (activityDate !== today) {
+              hideLoadingOverlay(); // 隐藏加载动画
+              showResultModal(false, '无法接档，活动已过期'); // 显示提示
+              return;
+          }
+  
+          // 如果活动日期是当天，继续发起下载请求
+          window.electron.send('download-and-unzip', { serverIp: SERVER_IP, workingPort: WORKING_PORT, operatorId: operatorId });
+  
+          // 监听主进程回复
+          window.electron.receive('download-and-unzip-reply', (args) => {
+              hideLoadingOverlay(); // 隐藏加载动画
+              showResultModal(args.success, args.message); // 显示结果提示
+          });
+      } catch (error) {
+          console.error('接档失败:', error);
+          hideLoadingOverlay(); // 隐藏加载动画
+          showResultModal(false, `接档失败: ${error.message}`); // 显示错误提示
+      }
+  });
+  
+  // 卸档按钮点击事件
+  document.getElementById('notDevelopedButton').addEventListener('click', async function () {
+      try {
+          showdownloadOverlay(); // 显示加载动画
+          const settings = await getSettings();
+          const SERVER_IP = settings.serverIp || "127.0.0.1";
+          const WORKING_PORT = settings.workingPort || "3000";
+          const operatorId = localStorage.getItem('operatorId');
+          const jwtToken = localStorage.getItem('jwtToken');
+  
+          if (!jwtToken || !operatorId) {
+              alert('请先登录');
+              return;
+          }
+  
+          // 获取最近活动的文件名
+          const response = await fetch(`http://${SERVER_IP}:${WORKING_PORT}/activity/recently?operator=${encodeURIComponent(operatorId)}`, {
+              method: 'GET',
+              headers: {
+                  'Authorization': `Bearer ${jwtToken}`
+              }
+          });
+  
+          if (!response.ok) {
+              throw new Error('获取活动数据失败');
+          }
+  
+          const data = await response.json();
+          if (data.status !== "success" || !data.data || !data.data.fileName) {
+              throw new Error('未找到文件名');
+          }
+  
+          const fileName = data.data.fileName;
+  
+          // 确认删除
+          const confirmed = confirm(`确定要删除 ${fileName} 存档文件和相关文件吗？此操作不可恢复！`);
+          if (!confirmed) {
+              hidedownloadOverlay(); // 隐藏加载动画
+              return;
+          }
+  
+          // 调用主进程删除文件
+          window.electronAPI.deleteFiles(fileName);
+          window.electronAPI.deleteFiles('file.zip');
+  
+          // 监听删除结果
+          window.electronAPI.receive('delete-files-reply', (result) => {
+              hidedownloadOverlay(); // 隐藏加载动画
+              showResultModal(result.success, result.message); // 显示结果提示
+          });
+      } catch (error) {
+          console.error('删除文件失败:', error);
+          hidedownloadOverlay(); // 隐藏加载动画
+          showResultModal(false, `删除文件失败: ${error.message}`); // 显示错误提示
+      }
+  });
+  
+  // 页面加载完成后初始化
+  document.addEventListener('DOMContentLoaded', async function () {
       try {
           const settings = await getSettings();
           const SERVER_IP = settings.serverIp || "127.0.0.1";
@@ -804,8 +942,8 @@ document.getElementById('downloadButton').addEventListener('click', async functi
               headers: {
                   'Authorization': `Bearer ${jwtToken}`
               },
-              success: function(response) {
-                  if(response.status === "success" && response.data) {
+              success: function (response) {
+                  if (response.status === "success" && response.data) {
                       const activity = response.data;
   
                       // 填充数据
@@ -825,10 +963,10 @@ document.getElementById('downloadButton').addEventListener('click', async functi
                       $('#activity-detail-twourl').attr('src', activity.detailTwoURL || '无'); // 详情2
                   }
               },
-              error: function(xhr) {
+              error: function (xhr) {
                   console.error('活动数据获取失败:', xhr.responseText);
                   // 设置所有字段为"无"
-                  $('[id^="activity-"]').each(function() {
+                  $('[id^="activity-"]').each(function () {
                       if ($(this).is('img')) {
                           $(this).attr('src', 'https://img.zcool.cn/community/017f6559609282a8012193a38ab993.gif'); // 设置默认图片
                       } else {
@@ -841,7 +979,9 @@ document.getElementById('downloadButton').addEventListener('click', async functi
           console.error('初始化设置时出错:', error);
       }
   });
-  </script>
+</script>
+  
+<script src="./scriptjs/auth-check.js"></script> <!-- 检查登录状态 -->
 
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>

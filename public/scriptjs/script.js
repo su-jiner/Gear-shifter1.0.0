@@ -2,7 +2,7 @@
 function showNotDevelopedModal(message) {
     const modal = document.getElementById('notDevelopedModal');
     const modalMessage = document.getElementById('modal-message');
-    modalMessage.textContent = message || '此功能尚未开发完成，请稍后再试。';
+    modalMessage.textContent = message || '此功能尚未开发完成，请敬请期待。';
     modal.classList.remove('hidden'); // 移除隐藏类
     modal.classList.add('active'); // 添加激活类
 }
@@ -15,16 +15,12 @@ function hideNotDevelopedModal() {
 }
 
 // 监听按钮点击事件
-document.getElementById('notDevelopedButton').addEventListener('click', function () {
-    showNotDevelopedModal(); // 显示未开发提示框
-});
-
 document.getElementById('restoreButton').addEventListener('click', function () {
-    showNotDevelopedModal('恢复功能尚未开发完成，请稍后再试。');
+    showNotDevelopedModal('恢复功能尚未开发完成，请敬请期待。');
 });
 
 document.getElementById('uninstallDLCButton').addEventListener('click', function () {
-    showNotDevelopedModal('卸DLC功能尚未开发完成，请稍后再试。');
+    showNotDevelopedModal('卸DLC功能尚未开发完成，请敬请期待。');
 });
 
 // 监听关闭按钮点击事件
