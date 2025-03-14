@@ -30,8 +30,7 @@ function loadSettings() {
 }
 
 const settings = loadSettings();
-const SERVER_IP = settings.serverIp || "127.0.0.1"; // 默认值为 127.0.0.1
-const WORKING_PORT = settings.workingPort || "3000"; // 默认值为 3000
+const SERVER_IP = settings.SERVER_IP || "127.0.0.1"; // 默认值为 127.0.0.1
 
 // 检查更新的函数
 async function checkForUpdates() {
