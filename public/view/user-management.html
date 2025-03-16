@@ -12,9 +12,9 @@
 <link href="../css/materialdesignicons.min.css" rel="stylesheet">
 <link href="../css/style.min.css" rel="stylesheet">
 <!-- 新增样式库 -->
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="../css/tailwind.min.css" rel="stylesheet">
 <!-- 引入 Font Awesome 图标库 -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<link href="../css/all.min.css" rel="stylesheet">
 <link href="../css/style.css" rel="stylesheet">
 <script src="../scriptjs/logout-setting.js"></script>
 
@@ -197,9 +197,6 @@
               
                   <script>
                       function handleCloseApp() {
-                          // 清除 localStorage 中的所有数据
-                          localStorage.clear();
-                        
                           // 调用 Electron API 关闭应用程序
                           window.electronAPI.closeApp();
                       }
@@ -533,7 +530,7 @@
 </div>
 
 <!-- 引入 jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="../js/jquery-3.6.0.min.js"></script>
 
 <script>
   async function getSettings() {

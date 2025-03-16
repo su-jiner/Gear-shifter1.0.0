@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <title>登录</title>
     <!-- 引入 Tailwind CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="../css/tailwind.min.css" rel="stylesheet">
     <!-- 引入 Font Awesome 图标库 -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="../css/all.min.css" rel="stylesheet">
     <link href="../css/style1.css" rel="stylesheet">
 
     <!-- 引入 crypto-js 库 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="../js/crypto-js.min.js"></script>
     <style>
         /* 自定义加载动画样式 */
         .loader {
@@ -104,6 +104,12 @@
                 <div class="error-msg mt-1 text-red-500 text-sm hidden">密码至少包含一个字母和一个数字，且长度不少于8个字符，支持 - 和 _ 符号</div>
             </div>
 
+            <!-- 添加记住我选项 -->
+            <div class="flex items-center">
+                <input type="checkbox" id="remember-me" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                <label for="remember-me" class="ml-2 block text-sm text-gray-900">记住账号</label>
+            </div>
+
             <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline inline-flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
@@ -139,7 +145,7 @@
     </div>
 
     <!-- 引入 jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/jquery-3.6.0.min.js"></script>
 
     <script>
         async function getSettings() {
@@ -157,11 +163,24 @@
             const SERVER_IP = settings.serverIp || "127.0.0.1";
             const WORKING_PORT = settings.workingPort || "3000";
 
+            // 恢复“记住账号”复选框的状态
+            const rememberMe = localStorage.getItem('rememberMe') === 'true';
+            $('#remember-me').prop('checked', rememberMe);
+    
+            // 从localStorage加载保存的登录信息和方式
+            const savedLoginMethod = localStorage.getItem('loginMethod');
+            const savedAccount = localStorage.getItem('savedAccount');
+    
+            if (savedLoginMethod && savedAccount) {
+                $(`input[name="login-method"][value="${savedLoginMethod}"]`).prop('checked', true).trigger('change');
+                $(`#${savedLoginMethod}`).val(savedAccount).trigger('blur');
+            }
+    
             // 监听输入框的 blur 事件
             $('#QQID').on('blur', function () {
                 validateField($(this), validateQQID);
             });
-
+    
             $('#username').on('blur', function () {
                 validateField($(this), validateUsername);
             });
@@ -182,15 +201,20 @@
             // 切换登录方式时显示相应的输入框
             $('input[name="login-method"]').on('change', function() {
                 const method = $(this).val();
-                
+    
+                // 当切换登录方式时，如果本地存储的是另一种方式，保持当前输入框的值不变
+                if (savedLoginMethod && savedLoginMethod !== method) {
+                    $(`#${method}`).val(''); // 清除非当前登录方式的输入框
+                }
+    
                 // 隐藏所有输入框并禁用它们
                 $('#QQID-group, #username-group').addClass('hidden');
                 $('#QQID, #username').prop('disabled', true).removeAttr('required');
-                
+    
                 // 显示当前登录方式对应的输入框并启用它
                 $(`#${method}-group`).removeClass('hidden');
                 $(`#${method}`).prop('disabled', false).attr('required', true);
-                
+    
                 // 清空非当前输入框的值和错误提示
                 if (method === 'username') {
                     $('#QQID').val('').trigger('blur');
@@ -202,17 +226,17 @@
             // 提交表单时验证所有字段
             $('#login-form').on('submit', function (e) {
                 e.preventDefault();
-                
+    
                 // 禁用按钮防止重复提交
                 const $submitBtn = $(this).find('button[type="submit"]');
                 $submitBtn.prop('disabled', true);
     
                 // 显示加载动画
                 $('#loading-overlay').removeClass('hidden');
-                
+    
                 // 强制至少显示3秒动画
                 const minLoadingTime = new Promise(resolve => setTimeout(resolve, 3000));
-                
+    
                 const loginMethod = $('input[name="login-method"]:checked').val();
                 const username = $('#username').val().trim();
                 const QQID = $('#QQID').val().trim();
@@ -313,14 +337,29 @@
                     localStorage.setItem('userid', response.user.userid); // 保存userid
                     localStorage.setItem('adminRole', response.user.adminRole); // 保存职位
                     localStorage.setItem('score', response.user.score); // 保存积分
-    
+
                     // 保存登录状态和用户信息到sessionStorage
                     sessionStorage.setItem('isLoggedIn', 'true');
                     sessionStorage.setItem('user', JSON.stringify(response.user));
-    
+
+                    // 如果勾选了“记住账号”，则保存登录方式和账号
+                    const rememberMe = $('#remember-me').is(':checked'); // 获取“记住账号”复选框的状态
+                    const loginMethod = $('input[name="login-method"]:checked').val(); // 重新获取登录方式
+                    const accountField = loginMethod === 'username' ? $('#username').val().trim() : $('#QQID').val().trim(); // 重新获取账号
+
+                    if (rememberMe) {
+                        localStorage.setItem('loginMethod', loginMethod);
+                        localStorage.setItem('savedAccount', accountField);
+                        localStorage.setItem('rememberMe', 'true'); // 保存“记住账号”状态
+                    } else {
+                        localStorage.removeItem('loginMethod');
+                        localStorage.removeItem('savedAccount');
+                        localStorage.removeItem('rememberMe'); // 移除“记住账号”状态
+                    }
+
                     // 更新页面中的头像
                     updateAvatar(response.user.avatar);
-    
+
                     // 跳转到主页
                     window.location.href = '../index.html';
                 } else {
@@ -354,12 +393,12 @@
             function validateField($input, validationFunction) {
                 const value = $input.val().trim();
                 const isValid = validationFunction(value);
-                
+    
                 $input.toggleClass('border-red-500', !isValid)
                       .toggleClass('border-green-500', isValid);
-                
+    
                 $input.next('.error-msg').toggleClass('hidden', isValid);
-                
+    
                 return isValid;
             }
     

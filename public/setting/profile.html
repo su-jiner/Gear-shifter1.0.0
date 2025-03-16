@@ -12,14 +12,14 @@
 <link href="../css/materialdesignicons.min.css" rel="stylesheet">
 <link href="../css/style.min.css" rel="stylesheet">
 <!-- 新增样式库 -->
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="../css/tailwind.min.css" rel="stylesheet">
 <!-- 引入 Font Awesome 图标库 -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<link href="../css/all.min.css" rel="stylesheet">
 <!-- 引入 SweetAlert2 CSS 和 JS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="../css/sweetalert2.min.css">
+<script src="../js/sweetalert2@11"></script>
 <link href="../css/style.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script src="../js/crypto-js.min.js"></script>
 <script src="../scriptjs/logout-setting.js"></script>
 <script src="../scriptjs/auth-check.js"></script>
 
@@ -350,9 +350,6 @@
               
                   <script>
                       function handleCloseApp() {
-                          // 清除 localStorage 中的所有数据
-                          localStorage.clear();
-                        
                           // 调用 Electron API 关闭应用程序
                           window.electronAPI.closeApp();
                       }
